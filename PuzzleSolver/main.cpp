@@ -10,10 +10,12 @@
 #include <vector>
 #include <string.h>
 #include <sys/types.h>
+#include <sstream>
 #include <dirent.h>
 #include <vector>
 #include "opencv/cv.h"
 #include "opencv/highgui.h"
+#include "piece.h"
 
 typedef std::vector<cv::Mat> imlist;
 cv::RNG rng(12345);
@@ -66,62 +68,58 @@ void filter(imlist to_filter, int size){
     }
 }
 
+std::vector<piece> extract_pieces(std::string path){
+    std::vector<piece> pieces;
+    imlist color_images = getImages(path);
+    std::cout << "Found "<< color_images.size() << " Images." << std::endl;
+    
+    imlist bw = color_to_bw(color_images,45);
+    std::cout << "Converted " << bw.size() << " to black and white" << std::endl;
+    
+    //Filter the noise out of the image
+    filter(bw,4);
 
+    //For each input image
+    for(int i = 0; i<color_images.size(); i++){
+        std::vector<std::vector<cv::Point> > contours;
+        std::vector<cv::Vec4i> hierarchy;
+        cv::findContours(bw[i].clone(), contours, hierarchy, cv::RETR_LIST, cv::CHAIN_APPROX_NONE);
+        std::cout << "Found " << contours.size() <<  " contour(s)." << std::endl;
+        
+        //For each contour in that image
+        for(int j = 0; j<contours.size(); j++){
+            int bordersize = 10;
+            cv::Rect r =  cv::boundingRect(contours[j]);
+            r.width += bordersize*2;
+            r.height += bordersize*2;
+            r.x -= bordersize;
+            r.y -= bordersize;
+            
+            
+            cv::Mat mini_color = color_images[i](r);
+            cv::Mat mini_bw = bw[i](r);
+            //Create a copy so it can't conflict.
+            mini_color = mini_color.clone();
+            mini_bw = mini_bw.clone();
+            
+            piece p(mini_color, mini_bw);
+            pieces.push_back(p);
+
+        }
+    }
+    
+    return pieces;
+}
 
 int main(int argc, const char * argv[])
 {
     std::cout << "Starting..." << std::endl;
-    cv::Mat m = cv::imread(folderpath);
-    imlist color_images = getImages(folderpath);
-    std::cout << "Found "<< color_images.size() << " Images." << std::endl;
-    imlist bw = color_to_bw(color_images,45);
-    std::cout << "Converted " << bw.size() << " to black and white" << std::endl;
 
-    filter(bw,4);
+    
+    extract_pieces(folderpath);
 
-    cv::imwrite("/Users/jzeimen/Desktop/test1.png", bw[1]);
+    // Set the neeed parameters to find the refined corners
 
-    std::vector<std::vector<cv::Point> > contours;
-    std::vector<cv::Vec4i> hierarchy;
-    cv::findContours(bw[0].clone(), contours, hierarchy, cv::RETR_LIST, cv::CHAIN_APPROX_NONE);
-    std::cout << "Found " << contours.size() <<  " contour(s)." << std::endl;
-    
-    
-    std::vector<cv::Point2f> corners;
-    double qualityLevel = 0.385;
-    double minDistance = 100;
-    int blockSize = 15;
-    bool useHarrisDetector = false;
-    double k = 0.04;
-    
-    cv::goodFeaturesToTrack(bw[0].clone(),
-                            corners,
-                            100,
-                            qualityLevel,
-                            minDistance,
-                            cv::Mat(),
-                            blockSize,
-                            useHarrisDetector,
-                            k);
-    std::cout << "Found " << corners.size() << " corner(s)." << std::endl;
-    
-    
-
-    /// Set the neeed parameters to find the refined corners
-    cv::Size winSize = cv::Size( 15, 15 );
-    cv::Size zeroZone = cv::Size( -1, -1 );
-    cv::TermCriteria criteria = cv::TermCriteria( CV_TERMCRIT_EPS + CV_TERMCRIT_ITER, 40, 0.001 );
-    
-    /// Calculate the refined corner locations
-    cv::cornerSubPix( bw[0], corners, winSize, zeroZone, criteria );
-    
-    int r = 4;
-    for( int i = 0; i < corners.size(); i++ )
-    { circle( color_images[0], corners[i], r, cv::Scalar(255,255,255), -1, 8, 0 ); }
-    
-    
-    
-    cv::imwrite("/Users/jzeimen/Desktop/test1.png", color_images[0]);
     std::cout << "Finished\n";
     return 0;
 }

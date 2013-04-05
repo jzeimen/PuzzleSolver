@@ -11,4 +11,8 @@
 
 #include <iostream>
 
+class edge{
+    
+};
+
 #endif /* defined(__PuzzleSolver__edge__) */
