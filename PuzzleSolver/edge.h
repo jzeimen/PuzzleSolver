@@ -30,6 +30,7 @@ public:
     edge(std::vector<cv::Point> edge);
     std::vector<cv::Point> get_translated_contour(int,int);
     edgeType get_type();
+    double compare(edge);
     
 };
 

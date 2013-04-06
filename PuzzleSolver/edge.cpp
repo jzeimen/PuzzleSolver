@@ -16,6 +16,14 @@ edge::edge(std::vector<cv::Point> edge){
 }
 
 
+double edge::compare(edge that){
+    //Return large numbers if we know that these shapes simply wont match...
+    if(type == OUTER_EDGE || that.type == OUTER_EDGE) return 1000000;
+    if(type == that.type) return 10000000;
+    return cv::matchShapes(contour, that.contour, CV_CONTOURS_MATCH_I2, 0);
+}
+
+
 void edge::classify(){
     
     //See if it is an edge

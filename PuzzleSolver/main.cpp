@@ -142,6 +142,8 @@ int main(int argc, const char * argv[])
             
             std::stringstream out_name;
             out_name << "/tmp/final/contour-" << i << "-" << j << ".png";
+            
+            std::cout << out_name.str() << " " << pieces[23].edges[3].compare(pieces[i].edges[j]) << std::endl;
             cv::imwrite(out_name.str(),img);
         }
     }
@@ -152,4 +154,8 @@ int main(int argc, const char * argv[])
     std::cout << "Finished\n";
     return 0;
 }
+
+
+
+
 
