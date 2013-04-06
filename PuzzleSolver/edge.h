@@ -10,8 +10,12 @@
 #define __PuzzleSolver__edge__
 
 #include <iostream>
-
+#include <opencv/cv.h>
 class edge{
+    std::vector<cv::Point> contour;
+public:
+    edge();
+    edge(std::vector<cv::Point> edge);
     
 };
 
