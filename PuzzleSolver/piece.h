@@ -18,12 +18,13 @@ private:
     std::vector<cv::Point2f> corners;
     cv::Mat bw;
     
-    edge edges[4];
     void process();
     void find_corners();
     void extract_edges();
 public:
     piece(cv::Mat color,cv::Mat bw);
+    edge edges[4];
+
     
 };
 

@@ -71,7 +71,6 @@ void filter(imlist to_filter, int size){
 std::vector<piece> extract_pieces(std::string path){
     std::vector<piece> pieces;
     imlist color_images = getImages(path);
-    std::cout << "Found "<< color_images.size() << " Images." << std::endl;
     
     imlist bw = color_to_bw(color_images,45);
     std::cout << "Converted " << bw.size() << " to black and white" << std::endl;
@@ -84,7 +83,7 @@ std::vector<piece> extract_pieces(std::string path){
         std::vector<std::vector<cv::Point> > contours;
         std::vector<cv::Vec4i> hierarchy;
         cv::findContours(bw[i].clone(), contours, hierarchy, cv::RETR_LIST, cv::CHAIN_APPROX_NONE);
-        std::cout << "Found " << contours.size() <<  " contour(s)." << std::endl;
+//        std::cout << "Found " << contours.size() <<  " contour(s)." << std::endl;
         
         //For each contour in that image
         for(int j = 0; j<contours.size(); j++){
@@ -116,8 +115,25 @@ int main(int argc, const char * argv[])
     std::cout << "Starting..." << std::endl;
 
     
-    extract_pieces(folderpath);
+    std::vector<piece>  pieces = extract_pieces(folderpath);
 
+    
+    for(int i=0; i<pieces.size(); i++){
+        for(int j=0; j<4; j++){
+            cv::Mat img= cv::Mat::zeros(500,500, CV_8UC1);
+            
+            std::vector<cv::Point> contour = pieces[i].edges[j].get_translated_contour(200,0);
+            std::vector<std::vector<cv::Point> > contours;
+            contours.push_back(contour);
+            std::cout <<contours.size() << std::endl;
+            cv::drawContours(img, contours, -1, cv::Scalar(255));
+            std::stringstream out_name;
+            out_name << "/tmp/final/contour-" << j << "-" << i << ".png";
+            cv::imwrite(out_name.str(),img);
+        }
+    }
+    
+    
     // Set the neeed parameters to find the refined corners
 
     std::cout << "Finished\n";

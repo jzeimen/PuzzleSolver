@@ -87,8 +87,7 @@ void piece::extract_edges(){
     
     std::vector<std::vector<cv::Point>::iterator> sections;
     sections = find_all_in(contour.begin(), contour.end(), corners);
-    std::cout << contour[0] << corners[0] << corners[1] << corners[3] << corners[2]<< std::endl;
-    std::cout << *sections[3] << std::endl;
+
     //Make corners go in the correct order
     for(int i = 0; i<4; i++){
         corners[i]=*sections[i];
@@ -151,7 +150,6 @@ void piece::find_corners(){
     
     
     if(found_all_corners){
-//        std::cout << "Success" << std::endl;
     } else {
         std::cerr << "Failed to find correct number of corners" << std::endl;
         exit(2);
