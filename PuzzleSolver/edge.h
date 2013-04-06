@@ -11,6 +11,9 @@
 
 #include <iostream>
 #include <opencv/cv.h>
+
+
+enum edgeType { OUTER_EDGE, TAB, HOLE };
 class edge{
 private:
     //The original contour passed into the function.
@@ -21,11 +24,17 @@ private:
     std::vector<cv::Point2f> normalized_contour;
     void normalize();
     void classify();
+    edgeType type;
 public:
     edge();
     edge(std::vector<cv::Point> edge);
     std::vector<cv::Point> get_translated_contour(int,int);
+    edgeType get_type();
     
 };
+
+
+
+
 
 #endif /* defined(__PuzzleSolver__edge__) */

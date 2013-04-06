@@ -21,6 +21,17 @@ typedef std::vector<cv::Mat> imlist;
 cv::RNG rng(12345);
 static const std::string folderpath = "/Users/jzeimen/Documents/school/College/Spring2013/ComputerVision/FinalProject/Scans/Angry Birds/Scanner Open/";
 
+
+std::string edgeType_to_s(edgeType e){
+    switch(e){
+        case OUTER_EDGE: return "Edge";
+        case TAB: return "Tab";
+        case HOLE: return "Hole";
+    }
+    return "";
+}
+
+
 //This function takes a directory, and returns a vector of every image opencv could extract from it.
 imlist getImages(std::string path){
     imlist v;
@@ -125,10 +136,12 @@ int main(int argc, const char * argv[])
             std::vector<cv::Point> contour = pieces[i].edges[j].get_translated_contour(200,0);
             std::vector<std::vector<cv::Point> > contours;
             contours.push_back(contour);
-            std::cout <<contours.size() << std::endl;
-            cv::drawContours(img, contours, -1, cv::Scalar(255));
+            cv::drawContours(img, contours, -1, cv::Scalar(255), 1);
+            
+            cv::putText(img, edgeType_to_s(pieces[i].edges[j].get_type()), cv::Point(300,250), CV_FONT_HERSHEY_SIMPLEX, 1, cv::Scalar(255));
+            
             std::stringstream out_name;
-            out_name << "/tmp/final/contour-" << j << "-" << i << ".png";
+            out_name << "/tmp/final/contour-" << i << "-" << j << ".png";
             cv::imwrite(out_name.str(),img);
         }
     }

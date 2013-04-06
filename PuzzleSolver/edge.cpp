@@ -18,6 +18,30 @@ edge::edge(std::vector<cv::Point> edge){
 
 void edge::classify(){
     
+    //See if it is an edge
+    double contour_length = cv::arcLength(normalized_contour, false);
+    double begin_end_distance = cv::norm(normalized_contour.front()-normalized_contour.back());
+    if(contour_length < begin_end_distance*1.1){
+        type = OUTER_EDGE;
+        return;
+    }
+    
+    
+    int minx  = 10000000;
+    int maxx = -100000000;
+    for(int i = 0; i<normalized_contour.size(); i++){
+        if(minx > normalized_contour[i].x)  minx = normalized_contour[i].x;
+        if(maxx < normalized_contour[i].x)  maxx = normalized_contour[i].x;
+    }
+    
+    if(abs(minx) > abs(maxx)){
+        type = TAB;
+    }else{
+        type = HOLE;
+    }
+    
+    
+    
 }
 
 std::vector<cv::Point> edge::get_translated_contour(int offset_x, int offset_y){
@@ -28,7 +52,6 @@ std::vector<cv::Point> edge::get_translated_contour(int offset_x, int offset_y){
         int y = (int)(normalized_contour[i].y+offset_y+0.5);
         ret_contour.push_back(cv::Point(x,y));
     }
-    std::cout << ret_contour.size() << std::endl;
     return ret_contour;
 };
 
@@ -59,6 +82,12 @@ void edge::normalize(){
     
     
     
+    
+    
 }
 edge::edge(){
+}
+
+edgeType edge::get_type(){
+    return type;
 }
