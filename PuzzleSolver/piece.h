@@ -12,18 +12,24 @@
 #include "opencv/cv.h"
 #include "opencv/highgui.h"
 #include "edge.h"
+
+
+enum pieceType {CORNER, FRAME, MIDDLE};
+
 class piece{
 private:
     cv::Mat full_color;
     std::vector<cv::Point2f> corners;
     cv::Mat bw;
-    
+    pieceType type;
     void process();
     void find_corners();
     void extract_edges();
+    void classify();
 public:
     piece(cv::Mat color,cv::Mat bw);
     edge edges[4];
+    pieceType get_type();
 
     
 };

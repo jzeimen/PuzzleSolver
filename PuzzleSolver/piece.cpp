@@ -52,9 +52,29 @@ piece::piece(cv::Mat color, cv::Mat black_and_white){
 void piece::process(){
     find_corners();
     extract_edges();
+    classify();
 }
 
+void piece::classify(){
+    int count = 0;
+    for(int i = 0; i<4; i++){
+        if(edges[i].get_type() == OUTER_EDGE) count ++;
+    }
+    if(count ==0){
+        type = MIDDLE;
+    } else if (count == 1){
+        type = FRAME;
+    } else if (count == 2){
+        type = CORNER;
+    } else {
+        std::cerr << "Proble, found too many outer edges for this piece" << std:: endl;
+        exit(4);
+    }
+}
 
+pieceType piece::get_type(){
+    return type;
+}
 
 void piece::extract_edges(){
     

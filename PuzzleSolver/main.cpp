@@ -88,13 +88,13 @@ std::vector<piece> extract_pieces(std::string path){
     
     //Filter the noise out of the image
     filter(bw,4);
-
+    
     //For each input image
     for(int i = 0; i<color_images.size(); i++){
         std::vector<std::vector<cv::Point> > contours;
         std::vector<cv::Vec4i> hierarchy;
         cv::findContours(bw[i].clone(), contours, hierarchy, cv::RETR_LIST, cv::CHAIN_APPROX_NONE);
-//        std::cout << "Found " << contours.size() <<  " contour(s)." << std::endl;
+        //        std::cout << "Found " << contours.size() <<  " contour(s)." << std::endl;
         
         //For each contour in that image
         for(int j = 0; j<contours.size(); j++){
@@ -114,7 +114,7 @@ std::vector<piece> extract_pieces(std::string path){
             
             piece p(mini_color, mini_bw);
             pieces.push_back(p);
-
+            
         }
     }
     
@@ -124,12 +124,16 @@ std::vector<piece> extract_pieces(std::string path){
 int main(int argc, const char * argv[])
 {
     std::cout << "Starting..." << std::endl;
-
+    
     
     std::vector<piece>  pieces = extract_pieces(folderpath);
+    int middle = 0;
+    int frame = 0;
+    int corner = 0;
 
-    
     for(int i=0; i<pieces.size(); i++){
+
+        
         for(int j=0; j<4; j++){
             cv::Mat img= cv::Mat::zeros(500,500, CV_8UC1);
             
@@ -143,14 +147,33 @@ int main(int argc, const char * argv[])
             std::stringstream out_name;
             out_name << "/tmp/final/contour-" << i << "-" << j << ".png";
             
-            std::cout << out_name.str() << " " << pieces[23].edges[3].compare(pieces[i].edges[j]) << std::endl;
+            double compare_quality = pieces[11].edges[1].compare2(pieces[i].edges[j]);
+            //            if(compare_quality < 50)
+            std::cout << out_name.str() << " " << compare_quality << std::endl;
             cv::imwrite(out_name.str(),img);
+        }
+        switch(pieces[i].get_type()){
+            case MIDDLE:
+                middle++;
+                break;
+            case FRAME:
+                frame++;
+                break;
+            case CORNER:
+                corner++;
+                break;
+                
         }
     }
     
     
+    std::cout << "Corners: " << corner << " frame: " << frame << " middle: " << middle << std::endl;
+    
+    
+    
+    
     // Set the neeed parameters to find the refined corners
-
+    
     std::cout << "Finished\n";
     return 0;
 }

@@ -22,7 +22,8 @@ private:
     //and its endpoint straight above it (0,y). This is used internally
     //to classify the piece.
     std::vector<cv::Point2f> normalized_contour;
-    void normalize();
+    std::vector<cv::Point2f> reverse_normalized_contour;
+    template<class T> std::vector<cv::Point2f> normalize(std::vector<T>);
     void classify();
     edgeType type;
 public:
@@ -31,6 +32,7 @@ public:
     std::vector<cv::Point> get_translated_contour(int,int);
     edgeType get_type();
     double compare(edge);
+    double compare2(edge);
     
 };
 

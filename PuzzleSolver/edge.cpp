@@ -11,7 +11,11 @@
 #include <cmath>
 edge::edge(std::vector<cv::Point> edge){
     contour = edge;
-    normalize();
+    normalized_contour = normalize(contour);
+    std::vector<cv::Point> copy(contour.begin(),contour.end());
+    std::reverse(copy.begin(), copy.end());
+    //same as normalized contour, but flipped 180 degrees
+    reverse_normalized_contour = normalize(copy);
     classify();
 }
 
@@ -63,9 +67,11 @@ std::vector<cv::Point> edge::get_translated_contour(int offset_x, int offset_y){
     return ret_contour;
 };
 
-void edge::normalize(){
-    cv::Point2d a(contour.front().x,contour.front().y);
-    cv::Point2d b(contour.back().x, contour.back().y);
+template<class T>
+std::vector<cv::Point2f> edge::normalize(std::vector<T> cont){
+    std::vector<cv::Point2f> ret_contour;
+    cv::Point2d a(cont.front().x,cont.front().y);
+    cv::Point2d b(cont.back().x, cont.back().y);
     
     
     
@@ -79,15 +85,16 @@ void edge::normalize(){
     //Theta is the angle every point needs rotated.
     //and -a is the translation
     
-    for(std::vector<cv::Point>::iterator i = contour.begin(); i!= contour.end(); i++ ){
+    for(std::vector<cv::Point>::iterator i = cont.begin(); i!= cont.end(); i++ ){
         //Apply translation
         cv::Point2d temp_point(i->x-a.x,i->y-a.y);
         //Apply roatation
         double new_x= std::cos(theta) * temp_point.x - sin(theta)*temp_point.y;
         double new_y = std::sin(theta) * temp_point.x + std::cos(theta) *temp_point.y;
-        normalized_contour.push_back(cv::Point2f((float)new_x, (float)new_y));
+        ret_contour.push_back(cv::Point2f((float)new_x, (float)new_y));
     }
     
+    return ret_contour;
     
     
     
@@ -99,3 +106,24 @@ edge::edge(){
 edgeType edge::get_type(){
     return type;
 }
+
+
+double edge::compare2(edge that){
+    double cost=0;
+    double total_length =  cv::arcLength(normalized_contour, false) + cv::arcLength(that.reverse_normalized_contour, false);
+
+    for(std::vector<cv::Point2f>::iterator i = normalized_contour.begin(); i!=normalized_contour.end(); i++){
+        double min = 10000000;
+        for(std::vector<cv::Point2f>::iterator j = that.reverse_normalized_contour.begin(); j!=that.reverse_normalized_contour.end(); j++){
+            double dist = std::sqrt(std::pow(i->x - j->x,2) + std::pow(i->y - j->y, 2));
+            if(dist<min) min = dist;
+        }
+
+        cost+=min;
+    }
+    
+    
+    return cost/total_length;
+    
+}
+

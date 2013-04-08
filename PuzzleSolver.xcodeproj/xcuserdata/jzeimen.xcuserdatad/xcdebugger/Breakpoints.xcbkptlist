@@ -7,23 +7,12 @@
          shouldBeEnabled = "No"
          ignoreCount = "0"
          continueAfterRunningActions = "No"
-         filePath = "PuzzleSolver/main.cpp"
-         timestampString = "386883911.803651"
-         startingColumnNumber = "9223372036854775807"
-         endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "22"
-         endingLineNumber = "22">
-      </FileBreakpoint>
-      <FileBreakpoint
-         shouldBeEnabled = "No"
-         ignoreCount = "0"
-         continueAfterRunningActions = "No"
          filePath = "PuzzleSolver/piece.cpp"
-         timestampString = "386901057.259102"
+         timestampString = "386985887.27601"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "86"
-         endingLineNumber = "86"
+         startingLineNumber = "106"
+         endingLineNumber = "106"
          landmarkName = "piece::extract_edges()"
          landmarkType = "5">
       </FileBreakpoint>
@@ -45,12 +34,12 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "PuzzleSolver/edge.cpp"
-         timestampString = "386983536.621394"
+         timestampString = "386992808.022952"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "85"
-         endingLineNumber = "85"
-         landmarkName = "edge::normalize()"
+         startingLineNumber = "91"
+         endingLineNumber = "91"
+         landmarkName = "edge::normalize(std::vector&lt;T&gt; cont)"
          landmarkType = "5">
       </FileBreakpoint>
    </FileBreakpoints>
