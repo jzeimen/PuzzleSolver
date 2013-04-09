@@ -118,6 +118,15 @@ edgeType edge::get_type(){
 }
 
 
+std::string edge::edgeType_to_s(){
+    switch(type){
+        case OUTER_EDGE: return "Edge";
+        case TAB: return "Tab";
+        case HOLE: return "Hole";
+    }
+    return "";
+}
+
 double edge::compare2(edge that){
     //Return large number if an impossible situation is happening
     if(type == OUTER_EDGE || that.type == OUTER_EDGE) return 100000000;

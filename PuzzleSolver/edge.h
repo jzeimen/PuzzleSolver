@@ -35,6 +35,7 @@ public:
     edgeType get_type();
     double compare(edge);
     double compare2(edge);
+    std::string edgeType_to_s();
     
 };
 

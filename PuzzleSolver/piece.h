@@ -12,6 +12,8 @@
 #include "opencv/cv.h"
 #include "opencv/highgui.h"
 #include "edge.h"
+typedef std::vector<cv::Mat> imlist;
+
 
 
 enum pieceType {CORNER, FRAME, MIDDLE};

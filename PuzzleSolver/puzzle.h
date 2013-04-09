@@ -10,5 +10,20 @@
 #define __PuzzleSolver__puzzle__
 
 #include <iostream>
+#include "edge.h"
+#include "piece.h"
+#include "utils.h"
+class puzzle{
+private:
+    std::string edgeType_to_s(edgeType e);
+    std::vector<piece> extract_pieces(std::string path);
+    std::vector<piece>  pieces;
+    
+public:
+    puzzle(std::string);
+    void run();
+};
+
+
 
 #endif /* defined(__PuzzleSolver__puzzle__) */
