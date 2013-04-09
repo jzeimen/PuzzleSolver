@@ -25,11 +25,13 @@ private:
     std::vector<cv::Point2f> reverse_normalized_contour;
     template<class T> std::vector<cv::Point2f> normalize(std::vector<T>);
     void classify();
+    template<class T> std::vector<cv::Point> translate_contour(std::vector<T> in , int offset_x, int offset_y);
     edgeType type;
 public:
     edge();
     edge(std::vector<cv::Point> edge);
     std::vector<cv::Point> get_translated_contour(int,int);
+    std::vector<cv::Point> get_translated_contour_reverse(int,int);
     edgeType get_type();
     double compare(edge);
     double compare2(edge);

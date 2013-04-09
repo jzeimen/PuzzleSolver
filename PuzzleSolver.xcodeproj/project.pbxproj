@@ -430,6 +430,7 @@
 		B51935AF170E016100FF1235 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ENABLE_OPENMP_SUPPORT = YES;
 				GCC_VERSION = com.apple.compilers.llvmgcc42;
 				HEADER_SEARCH_PATHS = (
 					/opt/local/include,
@@ -445,6 +446,7 @@
 		B51935B0170E016100FF1235 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ENABLE_OPENMP_SUPPORT = YES;
 				GCC_VERSION = com.apple.compilers.llvmgcc42;
 				HEADER_SEARCH_PATHS = (
 					/opt/local/include,

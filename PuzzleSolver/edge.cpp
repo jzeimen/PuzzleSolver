@@ -56,15 +56,25 @@ void edge::classify(){
     
 }
 
-std::vector<cv::Point> edge::get_translated_contour(int offset_x, int offset_y){
+template<class T>
+std::vector<cv::Point> edge::translate_contour(std::vector<T> in , int offset_x, int offset_y){
     std::vector<cv::Point> ret_contour;
     cv::Point2f offset(offset_x,offset_y);
-    for(int i = 0; i<normalized_contour.size(); i++){
-        int x = (int)(normalized_contour[i].x+offset_x+0.5);
-        int y = (int)(normalized_contour[i].y+offset_y+0.5);
-        ret_contour.push_back(cv::Point(x,y));
+    for(int i = 0; i<in.size(); i++){
+        int x = (int)(in[i].x+offset_x+0.5);
+        int y = (int)(in[i].y+offset_y+0.5);
+        ret_contour.push_back(T(x,y));
     }
     return ret_contour;
+
+}
+
+std::vector<cv::Point> edge::get_translated_contour(int offset_x, int offset_y){
+    return translate_contour(normalized_contour, offset_x, offset_y);
+};
+
+std::vector<cv::Point> edge::get_translated_contour_reverse(int offset_x, int offset_y){
+    return translate_contour(reverse_normalized_contour, offset_x, offset_y);
 };
 
 template<class T>
@@ -109,6 +119,9 @@ edgeType edge::get_type(){
 
 
 double edge::compare2(edge that){
+    //Return large number if an impossible situation is happening
+    if(type == OUTER_EDGE || that.type == OUTER_EDGE) return 100000000;
+    if(type == that.type) return 100000000;
     double cost=0;
     double total_length =  cv::arcLength(normalized_contour, false) + cv::arcLength(that.reverse_normalized_contour, false);
 

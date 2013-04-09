@@ -13,6 +13,7 @@
 #include <sstream>
 #include <dirent.h>
 #include <vector>
+#include <omp.h>
 #include "opencv/cv.h"
 #include "opencv/highgui.h"
 #include "piece.h"
@@ -130,16 +131,18 @@ int main(int argc, const char * argv[])
     int middle = 0;
     int frame = 0;
     int corner = 0;
-
+    
     for(int i=0; i<pieces.size(); i++){
-
+        
         
         for(int j=0; j<4; j++){
             cv::Mat img= cv::Mat::zeros(500,500, CV_8UC1);
             
-            std::vector<cv::Point> contour = pieces[i].edges[j].get_translated_contour(200,0);
             std::vector<std::vector<cv::Point> > contours;
+            std::vector<cv::Point> contour = pieces[i].edges[j].get_translated_contour(200,0);
             contours.push_back(contour);
+            contour = pieces[11].edges[1].get_translated_contour_reverse(200,0);
+            //            contours.push_back(contour);
             cv::drawContours(img, contours, -1, cv::Scalar(255), 1);
             
             cv::putText(img, edgeType_to_s(pieces[i].edges[j].get_type()), cv::Point(300,250), CV_FONT_HERSHEY_SIMPLEX, 1, cv::Scalar(255));
@@ -170,9 +173,50 @@ int main(int argc, const char * argv[])
     std::cout << "Corners: " << corner << " frame: " << frame << " middle: " << middle << std::endl;
     
     
+    double array[24*4][24*4];
     
+    omp_set_num_threads(24);
+#pragma omp parallel for
+    for(int ip=0; ip<24; ip++){
+        for(int ie=0; ie<4; ie++){
+            for(int jp=0; jp<24; jp++){
+                for(int je=0; je<4; je++){
+                    array[ip*4+ie][jp*4+je]= pieces[ip].edges[ie].compare2(pieces[jp].edges[je]);
+                }
+            }
+        }
+        std::cout << ip << std::endl;
+    }
     
-    // Set the neeed parameters to find the refined corners
+    for(int i = 0; i<96; i++){
+        double min_cost = 1023123;
+        int min_pos = 0;
+        for(int j = 0; j<96; j++){
+            if(array[i][j] < min_cost){
+                min_cost = array[i][j];
+                min_pos = j;
+            }
+        }
+        if(pieces[i/4].edges[i%4].get_type() == OUTER_EDGE) continue;
+        cv::Mat img= cv::Mat::zeros(500,500, CV_8UC1);
+        
+        std::vector<std::vector<cv::Point> > contours;
+        std::vector<cv::Point> contour = pieces[i/4].edges[i%4].get_translated_contour(200,0);
+        contours.push_back(contour);
+        contour = pieces[min_pos/4].edges[min_pos%4].get_translated_contour_reverse(200,0);
+        contours.push_back(contour);
+        cv::drawContours(img, contours, -1, cv::Scalar(255), 1);
+        
+        
+        std::stringstream out_name;
+        out_name << "/tmp/final/found_contour-" << i/4 << "-" << i%4 << ".png";
+        
+
+        cv::imwrite(out_name.str(),img);
+        std::cout << (i/4) << "-" << i%4 << "   " << min_pos/4 << "-" << min_pos%4  << "\t" << array[i][min_pos]<< std::endl;
+    }
+    
+
     
     std::cout << "Finished\n";
     return 0;
