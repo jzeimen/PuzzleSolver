@@ -74,7 +74,7 @@ puzzle::puzzle(std::string folderpath){
 
 
 //Function just for me to test and play with how the interface is going...
-void puzzle::run(){
+void puzzle::solve(){
     std::cout << "Starting..." << std::endl;
     
     

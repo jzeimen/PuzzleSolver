@@ -13,15 +13,21 @@
 #include "edge.h"
 #include "piece.h"
 #include "utils.h"
+#include "piece_group.h"
 class puzzle{
 private:
+    struct match_score{
+        uint16_t edge1, edge2;
+        float cost;
+    };
+
+    std::vector<match_score> matches;
     std::string edgeType_to_s(edgeType e);
     std::vector<piece> extract_pieces(std::string path);
     std::vector<piece>  pieces;
-    
 public:
     puzzle(std::string);
-    void run();
+    void solve();
 };
 
 
