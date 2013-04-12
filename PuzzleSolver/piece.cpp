@@ -190,7 +190,7 @@ void piece::find_corners(){
 
     std::stringstream out_file_name;
     out_file_name << "/tmp/final/test"<<number++<<".png";
-    cv::imwrite(out_file_name.str(), full_color);
+//    cv::imwrite(out_file_name.str(), full_color);
     
 }
 

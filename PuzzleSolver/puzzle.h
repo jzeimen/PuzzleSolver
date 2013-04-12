@@ -13,18 +13,24 @@
 #include "edge.h"
 #include "piece.h"
 #include "utils.h"
-#include "piece_group.h"
+
 class puzzle{
 private:
     struct match_score{
         uint16_t edge1, edge2;
-        float cost;
+        double cost;
+        static bool compare(match_score a, match_score b){
+            return a.cost<b.cost;
+        }
     };
 
     std::vector<match_score> matches;
-    std::string edgeType_to_s(edgeType e);
     std::vector<piece> extract_pieces(std::string path);
     std::vector<piece>  pieces;
+    
+    void fill_costs();
+    
+    std::string edgeType_to_s(edgeType e);
 public:
     puzzle(std::string);
     void solve();

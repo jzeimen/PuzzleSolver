@@ -8,12 +8,12 @@
 
 #include "puzzle.h"
 #include <opencv/cv.h>
-#include <omp.h>
+#include "PuzzleDisjointSet.h"
 
 
 /*
-                   _________      ____
-                   \        \    /    |
+                   _________      _____
+                   \        \    /    /
                     |       /    \   /   _
                  ___/       \____/   |__/ \
                 /       PUZZLE SOLVER      }
@@ -21,8 +21,6 @@
                      \    /   /       /
                      |    |  |       |
                     /_____/   \_______\
-
-
 */
 
 
@@ -70,121 +68,81 @@ std::vector<piece> puzzle::extract_pieces(std::string path){
 
 puzzle::puzzle(std::string folderpath){
     pieces = extract_pieces(folderpath);
+
 }
+
+
+void puzzle::fill_costs(){
+    int no_edges = (int) pieces.size()*4;
+    
+    for(int i =0; i<no_edges; i++){
+        for(int j=i; j<no_edges; j++){
+            match_score score;
+            score.edge1 =(int) i;
+            score.edge2 =(int) j;
+            score.cost = pieces[i/4].edges[i%4].compare2(pieces[j/4].edges[j%4]);
+            matches.push_back(score);
+        }
+    }
+    std::sort(matches.begin(),matches.end(),match_score::compare);
+    std::cout << matches.begin()->cost;
+}
+
+
 
 
 //Function just for me to test and play with how the interface is going...
 void puzzle::solve(){
-    std::cout << "Starting..." << std::endl;
+    fill_costs();
+    int output_id=0;
+    std::vector<match_score>::iterator i= matches.begin();
+    PuzzleDisjointSet p((int)pieces.size());
     
-    
-    
-    int middle = 0;
-    int frame = 0;
-    int corner = 0;
     
     for(int i=0; i<pieces.size(); i++){
-        
-        
-        for(int j=0; j<4; j++){
-            cv::Mat img= cv::Mat::zeros(500,500, CV_8UC1);
-            
-            std::vector<std::vector<cv::Point> > contours;
-            std::vector<cv::Point> contour = pieces[i].edges[j].get_translated_contour(200,0);
-            contours.push_back(contour);
-            contour = pieces[11].edges[1].get_translated_contour_reverse(200,0);
-            //            contours.push_back(contour);
-            cv::drawContours(img, contours, -1, cv::Scalar(255), 1);
-            
-            cv::putText(img, pieces[i].edges[j].edgeType_to_s(), cv::Point(300,250), CV_FONT_HERSHEY_SIMPLEX, 1, cv::Scalar(255));
-            
-            std::stringstream out_name;
-            out_name << "/tmp/final/contour-" << i << "-" << j << ".png";
-            
-            double compare_quality = pieces[11].edges[1].compare2(pieces[i].edges[j]);
-            //            if(compare_quality < 50)
-            std::cout << out_name.str() << " " << compare_quality << std::endl;
-            cv::imwrite(out_name.str(),img);
-        }
-        switch(pieces[i].get_type()){
-            case MIDDLE:
-                middle++;
-                break;
-            case FRAME:
-                frame++;
-                break;
-            case CORNER:
-                corner++;
-                break;
-                
-        }
+        std::stringstream filename;
+        filename << "/tmp/final/p" << i << ".png";
+//        cv::imwrite(filename.str(), pieces[i].full_color);
     }
     
-    
-    std::cout << "Corners: " << corner << " frame: " << frame << " middle: " << middle << std::endl;
-    
-    
-    double array[24*4][24*4];
-    
-    omp_set_num_threads(4);
-#pragma omp parallel for
-    for(int ip=0; ip<24; ip++){
-        for(int ie=0; ie<4; ie++){
-            for(int jp=0; jp<24; jp++){
-                for(int je=0; je<4; je++){
-                    array[ip*4+ie][jp*4+je]= pieces[ip].edges[ie].compare2(pieces[jp].edges[je]);
-                }
-            }
-        }
-        std::cout << ip << std::endl;
-    }
-    
-    for(int i = 0; i<96; i++){
-        double min_cost = 1023123;
-        int min_pos = 0;
-        for(int j = 0; j<96; j++){
-            if(array[i][j] < min_cost){
-                min_cost = array[i][j];
-                min_pos = j;
-            }
-        }
-        if(pieces[i/4].edges[i%4].get_type() == OUTER_EDGE) continue;
-        cv::Mat img= cv::Mat::zeros(500,500, CV_8UC1);
+    while(!p.in_one_set() && i!=matches.end() ){
+        int p1 = i->edge1/4;
+        int e1 = i->edge1%4;
+        int p2 = i->edge2/4;
+        int e2 = i->edge2%4;
         
+        
+        cv::Mat m = cv::Mat::zeros(500,500,CV_8UC1);
+        std::stringstream out_file_name;
+        out_file_name << "/tmp/final/match" << output_id++ << "_" << p1<< "_" << e1 << "_" <<p2 << "_" <<e2 << ".png";
         std::vector<std::vector<cv::Point> > contours;
-        std::vector<cv::Point> contour = pieces[i/4].edges[i%4].get_translated_contour(200,0);
-        contours.push_back(contour);
-        contour = pieces[min_pos/4].edges[min_pos%4].get_translated_contour_reverse(200,0);
-        contours.push_back(contour);
-        cv::drawContours(img, contours, -1, cv::Scalar(255), 1);
+        contours.push_back(pieces[p1].edges[e1].get_translated_contour(200, 0));
+        contours.push_back(pieces[p2].edges[e2].get_translated_contour_reverse(200, 0));
+        cv::drawContours(m, contours, -1, cv::Scalar(255));
+        std::cout << out_file_name.str() << std::endl;
+//        cv::imwrite(out_file_name.str(), m);
         
-        
-        std::stringstream out_name;
-        out_name << "/tmp/final/found_contour-" << i/4 << "-" << i%4 << ".png";
-        
-        
-        cv::imwrite(out_name.str(),img);
-        std::cout << (i/4) << "-" << i%4 << "   " << min_pos/4 << "-" << min_pos%4  << "\t" << array[i][min_pos]<< std::endl;
+        std::cout << "Attempting to merge: " << p1 << " with: " << p2 << " using edges:" << e1 << ", " << e2 << " c:" << i->cost <<  std::endl;
+        p.join_sets(p1, p2, e1, e2);
+        std::cout << p.get(p.find(p1)).locations << std:: endl;
+        i++;
+    }
+    
+    if(p.in_one_set()){
+        std::cout << "Possible solution found" << std::
+        endl;
     }
     
     
     
-    std::cout << "Finished\n";
+    
+    //For the next best match, edge1 comes from piece A, edge2 comes from piece B
+    //Find original matching. 1-4    left bottom right top
+    //Pass in to merge
+    //If merge was successfull count++
+    //if count == number of pieces Done, return
+    
+    
 
 }
-/*
-Still Needed:
- list of pieces with index number n
- list of edges with index number m and piece number = m/4, edge on piece = m%4
- 
- Struct to hold costs, edge indexes (float,uint16,uint16)
- vector of said structs to be sorted and iterated through
- 
- 
- disjoint set, representitive of which holds the information about all other pieces...
- id_number=n, 
- rep_id_number=-1 if rep
- cv::Mat pieces
- cv::Mat rotations
 
-*/

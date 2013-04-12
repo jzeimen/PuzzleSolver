@@ -68,7 +68,7 @@
 		B5F5BF62170F316000D4776D /* piece.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B5F5BF60170F316000D4776D /* piece.cpp */; };
 		B5F5BF65170F316A00D4776D /* puzzle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B5F5BF63170F316A00D4776D /* puzzle.cpp */; };
 		B5F5BF681714D2FE00D4776D /* utils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B5F5BF661714D2FE00D4776D /* utils.cpp */; };
-		B5F5BF6B171625D600D4776D /* piece_group.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B5F5BF69171625D500D4776D /* piece_group.cpp */; };
+		B5F5BF7B17185B2700D4776D /* PuzzleDisjointSet.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B5F5BF7917185B2700D4776D /* PuzzleDisjointSet.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -151,8 +151,8 @@
 		B5F5BF64170F316A00D4776D /* puzzle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = puzzle.h; sourceTree = "<group>"; };
 		B5F5BF661714D2FE00D4776D /* utils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = utils.cpp; sourceTree = "<group>"; };
 		B5F5BF671714D2FE00D4776D /* utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = utils.h; sourceTree = "<group>"; };
-		B5F5BF69171625D500D4776D /* piece_group.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = piece_group.cpp; sourceTree = "<group>"; };
-		B5F5BF6A171625D600D4776D /* piece_group.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = piece_group.h; sourceTree = "<group>"; };
+		B5F5BF7917185B2700D4776D /* PuzzleDisjointSet.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PuzzleDisjointSet.cpp; sourceTree = "<group>"; };
+		B5F5BF7A17185B2700D4776D /* PuzzleDisjointSet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PuzzleDisjointSet.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -249,10 +249,10 @@
 				B5F5BF61170F316000D4776D /* piece.h */,
 				B5F5BF63170F316A00D4776D /* puzzle.cpp */,
 				B5F5BF64170F316A00D4776D /* puzzle.h */,
-				B5F5BF69171625D500D4776D /* piece_group.cpp */,
-				B5F5BF6A171625D600D4776D /* piece_group.h */,
 				B5F5BF661714D2FE00D4776D /* utils.cpp */,
 				B5F5BF671714D2FE00D4776D /* utils.h */,
+				B5F5BF7917185B2700D4776D /* PuzzleDisjointSet.cpp */,
+				B5F5BF7A17185B2700D4776D /* PuzzleDisjointSet.h */,
 			);
 			path = PuzzleSolver;
 			sourceTree = "<group>";
@@ -375,7 +375,7 @@
 				B5F5BF62170F316000D4776D /* piece.cpp in Sources */,
 				B5F5BF65170F316A00D4776D /* puzzle.cpp in Sources */,
 				B5F5BF681714D2FE00D4776D /* utils.cpp in Sources */,
-				B5F5BF6B171625D600D4776D /* piece_group.cpp in Sources */,
+				B5F5BF7B17185B2700D4776D /* PuzzleDisjointSet.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -442,7 +442,7 @@
 		B51935AF170E016100FF1235 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ENABLE_OPENMP_SUPPORT = YES;
+				ENABLE_OPENMP_SUPPORT = NO;
 				GCC_ENABLE_FLOATING_POINT_LIBRARY_CALLS = NO;
 				GCC_ENABLE_SSE3_EXTENSIONS = NO;
 				GCC_ENABLE_SSE41_EXTENSIONS = NO;
@@ -467,7 +467,7 @@
 		B51935B0170E016100FF1235 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ENABLE_OPENMP_SUPPORT = YES;
+				ENABLE_OPENMP_SUPPORT = NO;
 				GCC_ENABLE_FLOATING_POINT_LIBRARY_CALLS = NO;
 				GCC_ENABLE_SSE3_EXTENSIONS = NO;
 				GCC_ENABLE_SSE41_EXTENSIONS = NO;

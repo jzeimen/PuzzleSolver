@@ -20,7 +20,6 @@ enum pieceType {CORNER, FRAME, MIDDLE};
 
 class piece{
 private:
-    cv::Mat full_color;
     std::vector<cv::Point2f> corners;
     cv::Mat bw;
     pieceType type;
@@ -29,6 +28,8 @@ private:
     void extract_edges();
     void classify();
 public:
+    cv::Mat full_color;
+
     piece(cv::Mat color,cv::Mat bw);
     edge edges[4];
     pieceType get_type();
