@@ -46,7 +46,7 @@ bool PuzzleDisjointSet::join_sets(int a, int b, int how_a, int how_b){
     //if its position was 0, 
     cv::Point loc_of_b = find_location(sets[rep_b].locations, b);
     int rot_b = sets[rep_b].rotations(loc_of_b);
-    int to_rot_b = (4-rot_b-how_b)%4; //incorrect!
+    int to_rot_b = (4-rot_b-how_b)%4; 
     rotate_ccw(rep_b, to_rot_b);
     
 
@@ -68,13 +68,11 @@ bool PuzzleDisjointSet::join_sets(int a, int b, int how_a, int how_b){
     cv::Mat_<int> new_b_rots(height, width, 0);
     
     
-    
+
     
     int ax_offset = std::abs(std::min(0, loc_of_a.x-loc_of_b.x+1));
     int ay_offset = std::abs(std::min(0, loc_of_a.y-loc_of_b.y));
     
-    
-    //B is moving when it isn't supposed to...
     int bx_offset = -(loc_of_b.x -( loc_of_a.x+ax_offset+1));
     int by_offset = -(loc_of_b.y -(loc_of_a.y+ay_offset));
 
@@ -84,7 +82,7 @@ bool PuzzleDisjointSet::join_sets(int a, int b, int how_a, int how_b){
     sets[rep_b].locations.copyTo(new_b_locs(cv::Rect(bx_offset,by_offset,size_of_b[1],size_of_b[0])));
     sets[rep_b].rotations.copyTo(new_b_rots(cv::Rect(bx_offset,by_offset,size_of_b[1],size_of_b[0])));
 
-    
+    std::cout << new_a_rots << std::endl << new_b_rots << std::endl;    
 
 
     //check for overlap while combining...
@@ -97,18 +95,13 @@ bool PuzzleDisjointSet::join_sets(int a, int b, int how_a, int how_b){
             
             if(new_a_locs(i,j) == -1 && new_b_locs(i,j)!=-1){
                 new_a_locs(i,j) = new_b_locs(i,j);
+                new_a_rots(i,j) = new_b_rots(i,j);
             }
-            
-            if(new_a_locs(i,j) == -1) new_a_rots(i,j)=0;
-            if(new_b_locs(i,j) == -1) new_b_rots(i,j)=0;
             
         }
     }
-    
-    //Add the rotation matricies to each other.
-    new_a_rots = new_a_rots+new_b_rots;
-   
-    
+
+
     //Set the new representative a, to have this Mat
     sets[rep_a].locations = new_a_locs;
     sets[rep_a].rotations = new_a_rots;
@@ -141,12 +134,10 @@ void PuzzleDisjointSet::rotate_ccw(int id,int times){
             cv::flip(sets[id].rotations,sets[id].rotations,1);
             cv::transpose(sets[id].rotations, sets[id].rotations);
             sets[id].rotations+=1;
-            
             break;
         case 2: //rotate 180
             cv::flip(sets[id].locations,sets[id].locations,-1); //flip around both axises
             cv::flip(sets[id].rotations ,sets[id].rotations,-1); //flip around both axises
-            //basically rotations = (rotations+1)%4
             sets[id].rotations+=2;
             break;
         case 3: //rotate cw 90 degrees
@@ -160,7 +151,16 @@ void PuzzleDisjointSet::rotate_ccw(int id,int times){
             return;
             break;
     }
-    //basically moding by 4
+    //If there is no piece at the location, the rotation needs to be set back
+    //to zero
+    for(int i=0; i<sets[id].locations.size[0]; i++){
+        for(int j=0; j<sets[id].locations.size[1]; j++){
+            if(-1==sets[id].locations(i,j)) sets[id].rotations(i,j)=0;
+        }
+    }
+    
+    //basically rotations%4 (opencv does not have an operator to do this
+    //Luckly the last 2 bits are all that is needed
     cv::bitwise_and(sets[id].rotations, 0x3, sets[id].rotations);
     return;
 }

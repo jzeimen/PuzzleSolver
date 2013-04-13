@@ -12,6 +12,7 @@
 #include <iostream>
 #include "edge.h"
 #include "piece.h"
+#include <string>
 #include "utils.h"
 
 class puzzle{
@@ -23,17 +24,19 @@ private:
             return a.cost<b.cost;
         }
     };
-
+    bool solved;
     std::vector<match_score> matches;
     std::vector<piece> extract_pieces(std::string path);
     std::vector<piece>  pieces;
-    
+    cv::Mat_<int> solution;
+    cv::Mat_<int> solution_rotations;
     void fill_costs();
     
     std::string edgeType_to_s(edgeType e);
 public:
     puzzle(std::string);
     void solve();
+    void save_image(std::string filepath);
 };
 
 

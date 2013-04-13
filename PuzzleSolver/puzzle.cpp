@@ -68,6 +68,7 @@ std::vector<piece> puzzle::extract_pieces(std::string path){
 
 puzzle::puzzle(std::string folderpath){
     pieces = extract_pieces(folderpath);
+    solved = false;
 
 }
 
@@ -129,20 +130,98 @@ void puzzle::solve(){
     }
     
     if(p.in_one_set()){
-        std::cout << "Possible solution found" << std::
-        endl;
+        std::cout << "Possible solution found" << std::endl;
+        solved = true;
+        solution = p.get(p.find(1)).locations;
+        solution_rotations = p.get(p.find(1)).rotations;
+        
+        for(int i =0; i<solution.size[0]; i++){
+            for(int j=0; j<solution.size[1]; j++){
+                int piece_number = solution(i,j);
+                pieces[piece_number].rotate(4-solution_rotations(i,j));
+            }
+        }
+        
+        
     }
     
     
     
-    
-    //For the next best match, edge1 comes from piece A, edge2 comes from piece B
-    //Find original matching. 1-4    left bottom right top
-    //Pass in to merge
-    //If merge was successfull count++
-    //if count == number of pieces Done, return
-    
-    
-
 }
 
+
+void puzzle::save_image(std::string filepath){
+    if(!solved) solve();
+    
+    std::cout << solution << std::endl << solution_rotations << std::endl;
+    //Use get affine to map points...
+    //cv::getAffineTransform(<#const Point2f *src#>, <#const Point2f *dst#>);
+    int out_image_size = 3000;
+    cv::Mat final_out_image(out_image_size,out_image_size,CV_8UC3, cv::Scalar(200,50,3));
+    int border = 10;
+    
+    cv::Point2f ** points = new cv::Point2f*[solution.size[0]+1];
+    for(int i = 0; i < solution.size[0]+1; ++i)
+        points[i] = new cv::Point2f[solution.size[1]+1];
+    
+    for(int i=0; i<solution.size[0];i++){
+        for(int j=0; j<solution.size[1]; j++){
+            int piece_number = solution(i,j);
+    
+            float x_dist = cv::norm(pieces[piece_number].get_corner(0)-pieces[piece_number].get_corner(3));
+            float y_dist = cv::norm(pieces[piece_number].get_corner(0)-pieces[piece_number].get_corner(1));
+            std::vector<cv::Point2f> src;
+            std::vector<cv::Point2f> dst;
+            
+            if(i==0 && j==0){
+                points[i][j] = cv::Point2f(border,border);
+            }
+            if(i==0){
+                points[i][j+1] = cv::Point2f(points[i][j].x+border+x_dist,border);
+            }
+            if(j==0){
+                points[i+1][j] = cv::Point2f(border,points[i][j].y+border+y_dist);
+            }
+            
+            dst.push_back(points[i][j]);
+            dst.push_back(points[i+1][j]);
+            dst.push_back(points[i][j+1]);
+            src.push_back(pieces[piece_number].get_corner(0));
+            src.push_back(pieces[piece_number].get_corner(1));
+            src.push_back(pieces[piece_number].get_corner(3));
+            cv::Mat a_trans_mat = cv::estimateRigidTransform(src, dst,true);
+            cv::Mat_<double> A = a_trans_mat;
+//            std::cout<<a_trans_mat<<std::endl;
+            
+            //Lower right corner of each piece
+            cv::Point2f l_r_c = pieces[piece_number].get_corner(2);
+            //Doing my own matrix multiplication
+            points[i+1][j+1] = cv::Point2f(A(0,0)*l_r_c.x+A(0,1)*l_r_c.y+A(0,2),A(1,0)*l_r_c.x+A(1,1)*l_r_c.y+A(1,2));
+            
+            
+            
+            cv::Mat layer;
+            cv::Mat layer_mask;
+            
+            int layer_size = out_image_size;
+            
+            cv::warpAffine(pieces[piece_number].full_color, layer, a_trans_mat, cv::Size2i(layer_size,layer_size));
+            cv::warpAffine(pieces[piece_number].bw, layer_mask, a_trans_mat, cv::Size2i(layer_size,layer_size));
+            
+            layer.copyTo(final_out_image(cv::Rect(0,0,layer_size,layer_size)), layer_mask);
+            std::cout << solution(i,j) << ",";
+            
+        }
+        std::cout << std::endl;
+    }
+    
+
+    cv::imwrite(filepath,final_out_image);
+    
+    
+
+    for(int i = 0; i < solution.size[0]+1; ++i)
+        delete points[i];
+    delete points;
+    
+}

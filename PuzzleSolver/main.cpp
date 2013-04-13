@@ -36,6 +36,12 @@ void test(){
 
 int main(int argc, const char * argv[])
 {
+    
+    cv::Mat_<int> x(2,3,0);
+    x(0,2)=1;
+    std::cout << x;
+    
+    
     std::cout << "Starting..." << std::endl;
     timeval time;
     gettimeofday(&time, NULL);
@@ -43,6 +49,7 @@ int main(int argc, const char * argv[])
 
     puzzle puzzle(folderpath);
     puzzle.solve();
+    puzzle.save_image("/tmp/final/finaloutput.png");
     gettimeofday(&time, NULL);
     
     std::cout << std::endl << "time:"  << (((time.tv_sec * 1000) + (time.tv_usec / 1000))-millis)/1000.0 << std::endl;

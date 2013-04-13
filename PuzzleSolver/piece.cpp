@@ -195,6 +195,15 @@ void piece::find_corners(){
 }
 
 
+void piece::rotate(int times){
+    int times_to_rotate = times%4;
+    std::rotate(edges, edges+times_to_rotate, edges+4);
+    std::rotate(corners.begin(), corners.begin()+times_to_rotate, corners.end());
+}
+
+cv::Point2f piece::get_corner(int id){
+    return corners[id];
+}
 
 
 
