@@ -37,6 +37,7 @@ I am specifically using the 2.4.4 version of the opencv library. Here is how I h
 # Compiling PuzzleSolver
 
 Once the opencv library has been installed, you can try to open the xcodeproject, or on linux or mac run this from the PuzzleSolver directory (with the source files):
+
     g++ `pkg-config --cflags opencv` -o PuzzleSolver *.cpp `pkg-config --libs opencv`
 
 This will result in an executable called PuzzleSolver. Currently the input/output settings are just hard coded in the program. 
