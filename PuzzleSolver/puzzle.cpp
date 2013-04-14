@@ -168,8 +168,8 @@ void puzzle::save_image(std::string filepath){
         for(int j=0; j<solution.size[1]; j++){
             int piece_number = solution(i,j);
     
-            float x_dist = cv::norm(pieces[piece_number].get_corner(0)-pieces[piece_number].get_corner(3));
-            float y_dist = cv::norm(pieces[piece_number].get_corner(0)-pieces[piece_number].get_corner(1));
+            float x_dist =(float) cv::norm(pieces[piece_number].get_corner(0)-pieces[piece_number].get_corner(3));
+            float y_dist =(float) cv::norm(pieces[piece_number].get_corner(0)-pieces[piece_number].get_corner(1));
             std::vector<cv::Point2f> src;
             std::vector<cv::Point2f> dst;
             
@@ -196,7 +196,7 @@ void puzzle::save_image(std::string filepath){
             //Lower right corner of each piece
             cv::Point2f l_r_c = pieces[piece_number].get_corner(2);
             //Doing my own matrix multiplication
-            points[i+1][j+1] = cv::Point2f(A(0,0)*l_r_c.x+A(0,1)*l_r_c.y+A(0,2),A(1,0)*l_r_c.x+A(1,1)*l_r_c.y+A(1,2));
+            points[i+1][j+1] = cv::Point2f((float)(A(0,0)*l_r_c.x+A(0,1)*l_r_c.y+A(0,2)),(float)(A(1,0)*l_r_c.x+A(1,1)*l_r_c.y+A(1,2)));
             
             
             
