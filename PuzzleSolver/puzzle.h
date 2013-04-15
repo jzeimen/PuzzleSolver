@@ -19,9 +19,9 @@ class puzzle{
 private:
     struct match_score{
         uint16_t edge1, edge2;
-        double cost;
+        double score;
         static bool compare(match_score a, match_score b){
-            return a.cost<b.cost;
+            return a.score<b.score;
         }
     };
     bool solved;

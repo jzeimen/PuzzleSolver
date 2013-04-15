@@ -18,6 +18,13 @@ typedef std::vector<cv::Mat> imlist;
 
 enum pieceType {CORNER, FRAME, MIDDLE};
 
+
+//The paradigm for the piece is that there are 4 edges
+//the edge "numbers" go from 0-3 in counter clockwise order
+//starting from the left.
+
+
+
 class piece{
 private:
     std::vector<cv::Point2f> corners;

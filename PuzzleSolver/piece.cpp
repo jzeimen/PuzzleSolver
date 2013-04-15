@@ -24,7 +24,7 @@ std::vector<cv::Point>::iterator find_first_in(std::vector<cv::Point>::iterator 
     return end;
 }
 
-//This returns iterators from the first vector where they equal places in the second vector. 
+//This returns iterators from the first vector where the value is equal places in the second vector.
 std::vector<std::vector<cv::Point>::iterator> find_all_in(std::vector<cv::Point>::iterator begin, std::vector<cv::Point>::iterator end, const std::vector<cv::Point2f> &v){
     
     std::vector<std::vector<cv::Point>::iterator> places;
@@ -37,12 +37,14 @@ std::vector<std::vector<cv::Point>::iterator> find_all_in(std::vector<cv::Point>
 }
 
 
-
+//Euclidian distance between 2 points.
 double distance(cv::Point a, cv::Point b){
     return cv::norm(a-b);
 }
 
+
 piece::piece(cv::Mat color, cv::Mat black_and_white){
+//    edges = std::vector<edge>();
     full_color = color;
     bw = black_and_white;
     process();
@@ -55,29 +57,86 @@ void piece::process(){
     classify();
 }
 
-void piece::classify(){
-    int count = 0;
-    for(int i = 0; i<4; i++){
-        if(edges[i].get_type() == OUTER_EDGE) count ++;
+
+
+
+
+//Gets the piece ready to use.
+//This code has been adapted from http://docs.opencv.org/doc/tutorials/features2d/trackingmotion/corner_subpixeles/corner_subpixeles.html
+void piece::find_corners(){
+    
+    
+    //How close can 2 corners be?
+    double minDistance = 200;
+    //How big of an area to look for the corner in.
+    int blockSize = 15;
+    bool useHarrisDetector = false;
+    double k = 0.04;
+    
+    double min =0;
+    double max =1;
+    int max_iterations = 10;
+    bool found_all_corners = false;
+    
+    //Binary search, altering quality until exactly 4 corners are found.
+    //Usually done in 1 or 2 iterations
+    while(0<max_iterations--){
+        corners.clear();
+        double qualityLevel = (min+max)/2;
+        cv::goodFeaturesToTrack(bw.clone(),
+                                corners,
+                                100,
+                                qualityLevel,
+                                minDistance,
+                                cv::Mat(),
+                                blockSize,
+                                useHarrisDetector,
+                                k);
+        if(corners.size() > 4){
+            //Found too many corners increase quality
+            min = qualityLevel;
+        } else if (corners.size() < 4){
+            max = qualityLevel;
+        } else {
+            //found all corners
+            found_all_corners = true;
+            break;
+        }
+        
     }
-    if(count ==0){
-        type = MIDDLE;
-    } else if (count == 1){
-        type = FRAME;
-    } else if (count == 2){
-        type = CORNER;
+    
+    
+    if(found_all_corners){
     } else {
-        std::cerr << "Proble, found too many outer edges for this piece" << std:: endl;
-        exit(4);
+        std::cerr << "Failed to find correct number of corners" << std::endl;
+        exit(2);
     }
+    
+    
+    //Find the sub-pixel locations of the corners.
+    cv::Size winSize = cv::Size( 15, 15 );
+    cv::Size zeroZone = cv::Size( -1, -1 );
+    cv::TermCriteria criteria = cv::TermCriteria( CV_TERMCRIT_EPS + CV_TERMCRIT_ITER, 40, 0.001 );
+    
+    /// Calculate the refined corner locations
+    cv::cornerSubPix( bw, corners, winSize, zeroZone, criteria );
+    
+    ////More debug stuff, this will mark the corners with a white circle and save the image
+    //    int r = 4;
+    //    for( int i = 0; i < corners.size(); i++ )
+    //    { circle( full_color, corners[i], r, cv::Scalar(255,255,255), -1, 8, 0 ); }
+    //    std::stringstream out_file_name;
+    //    out_file_name << "/tmp/final/test"<<number++<<".png";
+    //    cv::imwrite(out_file_name.str(), full_color);
+    
 }
 
-pieceType piece::get_type(){
-    return type;
-}
 
 void piece::extract_edges(){
-    
+    //Extract the contour,
+    //TODO: probably should have this passed in from the puzzle, since it already does this
+    //It was done this way b/c the contours don't correspond to the correct pixel locations
+    //in this cropped version of the image.
     std::vector<std::vector<cv::Point> > contours;
     std::vector<cv::Vec4i> hierarchy;
     cv::findContours(bw.clone(), contours, hierarchy, cv::RETR_LIST, cv::CHAIN_APPROX_NONE);
@@ -88,7 +147,8 @@ void piece::extract_edges(){
     }
     std::vector<cv::Point> contour = contours[0];
 
-    
+    //out of all of the found corners, find the closest points in the contour,
+    //these will become the endpoints of the edges
     for(int i = 0; i<corners.size(); i++){
         double best = 10000000000;
         cv::Point2f closest_point = contour[0];
@@ -102,8 +162,9 @@ void piece::extract_edges(){
         corners[i] = closest_point;
     }
     
-
+    //We need the begining of the vector to correspond to the begining of an edge.
     std::rotate(contour.begin(),find_first_in(contour.begin(), contour.end(), corners),contour.end());
+    
     
     std::vector<std::vector<cv::Point>::iterator> sections;
     sections = find_all_in(contour.begin(), contour.end(), corners);
@@ -125,76 +186,33 @@ void piece::extract_edges(){
 
 
 
-//Gets the piece ready to use.
-//This code has been adapted from http://docs.opencv.org/doc/tutorials/features2d/trackingmotion/corner_subpixeles/corner_subpixeles.html
-void piece::find_corners(){
-    
 
-    //How close can 2 corners be?
-    double minDistance = 200;
-    //How big of an area to look for the corner in.
-    int blockSize = 15;
-    bool useHarrisDetector = false;
-    double k = 0.04;
-    
-    double min =0;
-    double max =1;
-    int max_iterations = 10;
-    bool found_all_corners = false;
-    while(0<max_iterations--){
-        corners.clear();
-        double qualityLevel = (min+max)/2;
-        cv::goodFeaturesToTrack(bw.clone(),
-                                corners,
-                                100,
-                                qualityLevel,
-                                minDistance,
-                                cv::Mat(),
-                                blockSize,
-                                useHarrisDetector,
-                                k);
-        
-        
-        if(corners.size() > 4){
-            //Found too many corners increase quality
-            min = qualityLevel;
-        } else if (corners.size() < 4){
-            max = qualityLevel;
-        } else {
-            //found all corners
-            found_all_corners = true;
-            break;
-        }
 
+
+//Classify the type of piece
+void piece::classify(){
+    int count = 0;
+    for(int i = 0; i<4; i++){
+        if(edges[i].get_type() == OUTER_EDGE) count ++;
     }
-    
-    
-    if(found_all_corners){
+    if(count ==0){
+        type = MIDDLE;
+    } else if (count == 1){
+        type = FRAME;
+    } else if (count == 2){
+        type = CORNER;
     } else {
-        std::cerr << "Failed to find correct number of corners" << std::endl;
-        exit(2);
+        std::cerr << "Proble, found too many outer edges for this piece" << std:: endl;
+        exit(4);
     }
-    
-    
-    //Find the sub-pixel locations of the corners.
-    cv::Size winSize = cv::Size( 15, 15 );
-    cv::Size zeroZone = cv::Size( -1, -1 );
-    cv::TermCriteria criteria = cv::TermCriteria( CV_TERMCRIT_EPS + CV_TERMCRIT_ITER, 40, 0.001 );
-
-    /// Calculate the refined corner locations
-    cv::cornerSubPix( bw, corners, winSize, zeroZone, criteria );
-
-    int r = 4;
-    for( int i = 0; i < corners.size(); i++ )
-    { circle( full_color, corners[i], r, cv::Scalar(255,255,255), -1, 8, 0 ); }
-
-    std::stringstream out_file_name;
-    out_file_name << "/tmp/final/test"<<number++<<".png";
-//    cv::imwrite(out_file_name.str(), full_color);
-    
 }
 
+pieceType piece::get_type(){
+    return type;
+}
 
+//Remember the paradigm is that we go in ccw order
+//this rotates it ccw "90 degrees" for each "time"
 void piece::rotate(int times){
     int times_to_rotate = times%4;
     std::rotate(edges, edges+times_to_rotate, edges+4);

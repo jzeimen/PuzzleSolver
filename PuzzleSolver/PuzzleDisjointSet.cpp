@@ -16,6 +16,7 @@ PuzzleDisjointSet::PuzzleDisjointSet(int number){
     }
 
 }
+
 void PuzzleDisjointSet::make_set(int new_id){
     forest f;
     f.id = new_id;
@@ -67,22 +68,18 @@ bool PuzzleDisjointSet::join_sets(int a, int b, int how_a, int how_b){
     cv::Mat_<int> new_a_rots(height, width, 0);
     cv::Mat_<int> new_b_rots(height, width, 0);
     
-    
-
-    
     int ax_offset = std::abs(std::min(0, loc_of_a.x-loc_of_b.x+1));
     int ay_offset = std::abs(std::min(0, loc_of_a.y-loc_of_b.y));
     
     int bx_offset = -(loc_of_b.x -( loc_of_a.x+ax_offset+1));
     int by_offset = -(loc_of_b.y -(loc_of_a.y+ay_offset));
-
     
     sets[rep_a].locations.copyTo(new_a_locs(cv::Rect(ax_offset,ay_offset,size_of_a[1],size_of_a[0])));
     sets[rep_a].rotations.copyTo(new_a_rots(cv::Rect(ax_offset,ay_offset,size_of_a[1],size_of_a[0])));
     sets[rep_b].locations.copyTo(new_b_locs(cv::Rect(bx_offset,by_offset,size_of_b[1],size_of_b[0])));
     sets[rep_b].rotations.copyTo(new_b_rots(cv::Rect(bx_offset,by_offset,size_of_b[1],size_of_b[0])));
 
-    std::cout << new_a_rots << std::endl << new_b_rots << std::endl;    
+
 
 
     //check for overlap while combining...
@@ -105,7 +102,11 @@ bool PuzzleDisjointSet::join_sets(int a, int b, int how_a, int how_b){
     //Set the new representative a, to have this Mat
     sets[rep_a].locations = new_a_locs;
     sets[rep_a].rotations = new_a_rots;
+    
+    //Updating the number of sets left
     set_count--;
+    
+    //Representative is the same idea as a disjoint set datastructure
     sets[rep_b].representative = rep_a;
     return true; //Everything seems ok if it got this far
 }
@@ -166,7 +167,7 @@ void PuzzleDisjointSet::rotate_ccw(int id,int times){
 }
 
 
-
+//Returns location of the number in the matrix
 cv::Point PuzzleDisjointSet::find_location(cv::Mat_<int> m, int number ){
     for(int i = 0; i<m.size[0]; i++){
         for(int j=0; j<m.size[1]; j++){
@@ -182,6 +183,5 @@ PuzzleDisjointSet::forest PuzzleDisjointSet::get(int id){
 }
 
 bool PuzzleDisjointSet::in_one_set(){
-    std::cout << "count:" << set_count << std::endl;
     return (1==set_count);
 }

@@ -14,6 +14,10 @@
 
 
 enum edgeType { OUTER_EDGE, TAB, HOLE };
+
+
+//The paradigm for edges is that if you walked along the edge of the contour
+//from beginning to end, the piece will be to the left, and empty space to right.
 class edge{
 private:
     //The original contour passed into the function.
@@ -35,7 +39,7 @@ public:
     edgeType get_type();
     double compare(edge);
     double compare2(edge);
-    std::string edgeType_to_s();
+    std::string edge_type_to_s();
     
 };
 

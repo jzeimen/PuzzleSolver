@@ -53,6 +53,7 @@ void filter(imlist to_filter, int size){
     cv::Mat k = cv::getStructuringElement(cv::MORPH_ELLIPSE,cv::Size(size,size));
     for(imlist::iterator i = to_filter.begin(); i != to_filter.end(); i++){
         cv::Mat bw;
+        //Opening and closing removes anything smaller than size
         cv::morphologyEx(*i, bw, CV_MOP_OPEN, k);
         cv::morphologyEx(bw, *i, CV_MOP_CLOSE, k);
     }

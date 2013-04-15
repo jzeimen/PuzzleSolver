@@ -10,7 +10,10 @@
 #include <vector>
 #include <cmath>
 edge::edge(std::vector<cv::Point> edge){
+    //original
     contour = edge;
+    
+    //Normalized contours are used for comparisons
     normalized_contour = normalize(contour);
     std::vector<cv::Point> copy(contour.begin(),contour.end());
     std::reverse(copy.begin(), copy.end());
@@ -20,6 +23,7 @@ edge::edge(std::vector<cv::Point> edge){
 }
 
 
+//Trying OpenCV's match shapes, hasn't worked as well as my compare2 function.
 double edge::compare(edge that){
     //Return large numbers if we know that these shapes simply wont match...
     if(type == OUTER_EDGE || that.type == OUTER_EDGE) return 1000000;
@@ -28,9 +32,34 @@ double edge::compare(edge that){
 }
 
 
+//This comparison iterates over every point in "this" contour,
+//finds the closest point in "that" contour and sums those distances up.
+//The end result is the sum divided by length of the 2 contours
+double edge::compare2(edge that){
+    //Return large number if an impossible situation is happening
+    if(type == OUTER_EDGE || that.type == OUTER_EDGE) return 100000000;
+    if(type == that.type) return 100000000;
+    double cost=0;
+    double total_length =  cv::arcLength(normalized_contour, false) + cv::arcLength(that.reverse_normalized_contour, false);
+    
+    for(std::vector<cv::Point2f>::iterator i = normalized_contour.begin(); i!=normalized_contour.end(); i++){
+        double min = 10000000;
+        for(std::vector<cv::Point2f>::iterator j = that.reverse_normalized_contour.begin(); j!=that.reverse_normalized_contour.end(); j++){
+            double dist = std::sqrt(std::pow(i->x - j->x,2) + std::pow(i->y - j->y, 2));
+            if(dist<min) min = dist;
+        }
+        
+        cost+=min;
+    }
+    return cost/total_length;
+}
+
+
+
 void edge::classify(){
     
-    //See if it is an edge
+    //See if it is an outer edge comparing the distance between beginning and end w/
+    //the arc length.
     double contour_length = cv::arcLength(normalized_contour, false);
     double begin_end_distance = cv::norm(normalized_contour.front()-normalized_contour.back());
     if(contour_length < begin_end_distance*1.1){
@@ -38,7 +67,8 @@ void edge::classify(){
         return;
     }
     
-    
+    //Find the minimum or maximum value for x in the normalized contour and base
+    //the classification on that
     int minx  = 10000000;
     int maxx = -100000000;
     for(int i = 0; i<normalized_contour.size(); i++){
@@ -51,11 +81,10 @@ void edge::classify(){
     }else{
         type = HOLE;
     }
-    
-    
-    
 }
 
+
+//Return a contour that is translated
 template<class T>
 std::vector<cv::Point> edge::translate_contour(std::vector<T> in , int offset_x, int offset_y){
     std::vector<cv::Point> ret_contour;
@@ -77,24 +106,24 @@ std::vector<cv::Point> edge::get_translated_contour_reverse(int offset_x, int of
     return translate_contour(reverse_normalized_contour, offset_x, offset_y);
 };
 
+
+//This function takes in a vector of points, and transforms it so that it starts at the origin,
+//and ends on the y-axis
 template<class T>
 std::vector<cv::Point2f> edge::normalize(std::vector<T> cont){
     std::vector<cv::Point2f> ret_contour;
     cv::Point2d a(cont.front().x,cont.front().y);
     cv::Point2d b(cont.back().x, cont.back().y);
     
-    
-    
     //Calculating angle from vertical
     b.x =b.x - a.x;
     b.y =b.y - a.y;
+    
     double theta = std::acos(1.0*b.y/(cv::norm(b)));
     if(b.x < 0) theta = -theta;
     
-    
     //Theta is the angle every point needs rotated.
     //and -a is the translation
-    
     for(std::vector<cv::Point>::iterator i = cont.begin(); i!= cont.end(); i++ ){
         //Apply translation
         cv::Point2d temp_point(i->x-a.x,i->y-a.y);
@@ -105,11 +134,9 @@ std::vector<cv::Point2f> edge::normalize(std::vector<T> cont){
     }
     
     return ret_contour;
-    
-    
-    
-    
 }
+
+//TODO: get rid of this default constructor so it isn't accedentally used.
 edge::edge(){
 }
 
@@ -118,34 +145,12 @@ edgeType edge::get_type(){
 }
 
 
-std::string edge::edgeType_to_s(){
+std::string edge::edge_type_to_s(){
     switch(type){
         case OUTER_EDGE: return "Edge";
         case TAB: return "Tab";
         case HOLE: return "Hole";
     }
     return "";
-}
-
-double edge::compare2(edge that){
-    //Return large number if an impossible situation is happening
-    if(type == OUTER_EDGE || that.type == OUTER_EDGE) return 100000000;
-    if(type == that.type) return 100000000;
-    double cost=0;
-    double total_length =  cv::arcLength(normalized_contour, false) + cv::arcLength(that.reverse_normalized_contour, false);
-
-    for(std::vector<cv::Point2f>::iterator i = normalized_contour.begin(); i!=normalized_contour.end(); i++){
-        double min = 10000000;
-        for(std::vector<cv::Point2f>::iterator j = that.reverse_normalized_contour.begin(); j!=that.reverse_normalized_contour.end(); j++){
-            double dist = std::sqrt(std::pow(i->x - j->x,2) + std::pow(i->y - j->y, 2));
-            if(dist<min) min = dist;
-        }
-
-        cost+=min;
-    }
-    
-    
-    return cost/total_length;
-    
 }
 
