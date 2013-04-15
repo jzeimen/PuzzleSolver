@@ -6,7 +6,7 @@ This is a program that uses computer vision techniques to solve jigsaw puzzles u
 
 # Compiling opencv and run
 
-I am specifically using the 2.4.4 version of the opencv library. Here is how I have done it on 2 different computers. This is required to run PuzzleSolver.
+I am specifically using the 2.4.4 version of the opencv library. Here is how I have done it on 2 different computers. This is required to run PuzzleSolver. I have noticed that some versions on github don't always work, but they usually get fixed so if OSX 2.4.4 doesn't work try 2.4.5.
 
 ## OSX
 
