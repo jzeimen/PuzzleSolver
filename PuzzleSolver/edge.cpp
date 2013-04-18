@@ -9,6 +9,7 @@
 #include "edge.h"
 #include <vector>
 #include <cmath>
+#include "utils.h"
 edge::edge(std::vector<cv::Point> edge){
     //original
     contour = edge;
@@ -62,7 +63,7 @@ void edge::classify(){
     //the arc length.
     double contour_length = cv::arcLength(normalized_contour, false);
     double begin_end_distance = cv::norm(normalized_contour.front()-normalized_contour.back());
-    if(contour_length < begin_end_distance*1.1){
+    if(contour_length < begin_end_distance*1.3){
         type = OUTER_EDGE;
         return;
     }
@@ -84,19 +85,7 @@ void edge::classify(){
 }
 
 
-//Return a contour that is translated
-template<class T>
-std::vector<cv::Point> edge::translate_contour(std::vector<T> in , int offset_x, int offset_y){
-    std::vector<cv::Point> ret_contour;
-    cv::Point2f offset(offset_x,offset_y);
-    for(int i = 0; i<in.size(); i++){
-        int x = (int)(in[i].x+offset_x+0.5);
-        int y = (int)(in[i].y+offset_y+0.5);
-        ret_contour.push_back(T(x,y));
-    }
-    return ret_contour;
 
-}
 
 std::vector<cv::Point> edge::get_translated_contour(int offset_x, int offset_y){
     return translate_contour(normalized_contour, offset_x, offset_y);

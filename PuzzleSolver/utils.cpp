@@ -58,3 +58,30 @@ void filter(imlist to_filter, int size){
         cv::morphologyEx(bw, *i, CV_MOP_CLOSE, k);
     }
 }
+
+
+std::vector<cv::Point> remove_duplicates(std::vector<cv::Point> vec){
+    bool dupes_found = true;
+    while(dupes_found){
+        dupes_found=false;
+        int dup_at=-1;
+        for(int i =0; i<vec.size(); i++){
+            for(int j=0; j<vec.size(); j++){
+                if(j==i) continue;
+                //                std::cout << vec[i] << " " << vec[j] << std::endl;
+                if(vec[i] == vec[j]){
+                    dup_at=j;
+                    dupes_found = true;
+                    vec.erase(vec.begin()+j);
+                    break;
+                }
+            }
+            if(dupes_found){
+                break;
+            }
+        }
+    }
+    return vec;
+}
+
+

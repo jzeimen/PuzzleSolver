@@ -9,6 +9,7 @@
 #include "puzzle.h"
 #include <opencv/cv.h>
 #include "PuzzleDisjointSet.h"
+#include <sstream>
 //#include "omp.h"
 
 
@@ -26,9 +27,36 @@
 
 
 
-puzzle::puzzle(std::string folderpath){
+puzzle::puzzle(std::string folderpath, int estimated_piece_size, int thresh){
+    threshold = thresh;
+    piece_size = estimated_piece_size;
     pieces = extract_pieces(folderpath);
     solved = false;
+    print_edges();
+}
+
+
+void puzzle::print_edges(){
+    for(int i =0; i<pieces.size(); i++){
+        for(int j=0; j<4; j++){
+            cv::Mat m = cv::Mat::zeros(500, 500, CV_8UC1 );
+            
+            std::vector<std::vector<cv::Point> > contours;
+            contours.push_back(pieces[i].edges[j].get_translated_contour(200, 0));
+            //This isn't used but the opencv function wants it anyways.
+            std::vector<cv::Vec4i> hierarchy;
+
+            cv::drawContours(m, contours, -1, cv::Scalar(255));
+            
+            putText(m, pieces[i].edges[j].edge_type_to_s(), cvPoint(300,300),
+                    cv::FONT_HERSHEY_COMPLEX_SMALL, 0.8, cvScalar(255), 1, CV_AA);
+            
+            std::stringstream file_name;
+            file_name << "/tmp/final/contour" << i << "_" << j<<".png";
+            cv::imwrite(file_name.str(), m);
+            
+        }
+    }
 }
 
 std::vector<piece> puzzle::extract_pieces(std::string path){
@@ -37,11 +65,12 @@ std::vector<piece> puzzle::extract_pieces(std::string path){
     
     //Threshold the image, anything of intensity greater than 45 becomes white (255)
     //anything below becomes 0
-    imlist bw = color_to_bw(color_images,45);
+    imlist bw = color_to_bw(color_images,threshold);
+    cv::imwrite("/tmp/final/thresh.png", bw[0]);
     std::cout << "Converted " << bw.size() << " to black and white" << std::endl;
     
     //Filter the noise out of the image
-    filter(bw,4);
+//    filter(bw,4);
     
     //For each input image
     for(int i = 0; i<color_images.size(); i++){
@@ -63,19 +92,30 @@ std::vector<piece> puzzle::extract_pieces(std::string path){
         for(int j = 0; j<contours.size(); j++){
             int bordersize = 10;
             cv::Rect r =  cv::boundingRect(contours[j]);
+            if(r.width < piece_size || r.height < piece_size) continue;
+
+            
+            
+            cv::Mat new_bw = cv::Mat::zeros(r.height+2*bordersize,r.width+2*bordersize,CV_8UC1);
+            std::vector<std::vector<cv::Point> > contours_to_draw;
+            contours_to_draw.push_back(translate_contour(contours[j], bordersize-r.x, bordersize-r.y));
+            cv::drawContours(new_bw, contours_to_draw, -1, cv::Scalar(255), CV_FILLED);
+            //        std::cout << out_file_name.str() << std::endl;
+            //        cv::imwrite(out_file_name.str(), m);
+            cv::imwrite("/tmp/final/new_bw.png", new_bw);
+
             r.width += bordersize*2;
             r.height += bordersize*2;
             r.x -= bordersize;
             r.y -= bordersize;
-            
-            
+            cv::imwrite("/tmp/final/bw.png", bw[i](r));            
             cv::Mat mini_color = color_images[i](r);
-            cv::Mat mini_bw = bw[i](r);
+            cv::Mat mini_bw = new_bw;//bw[i](r);
             //Create a copy so it can't conflict.
             mini_color = mini_color.clone();
             mini_bw = mini_bw.clone();
             
-            piece p(mini_color, mini_bw);
+            piece p(mini_color, mini_bw, piece_size);
             pieces.push_back(p);
             
         }
@@ -127,6 +167,7 @@ void puzzle::solve(){
 //        filename << "/tmp/final/p" << i << ".png";
 //        cv::imwrite(filename.str(), pieces[i].full_color);
 //    }
+    int output_id=0;
     
     while(!p.in_one_set() && i!=matches.end() ){
         int p1 = i->edge1/4;
@@ -135,19 +176,18 @@ void puzzle::solve(){
         int e2 = i->edge2%4;
         
 ////Uncomment the following lines to spit out pictures of the matched edges...
-//        int output_id=0;
-//        cv::Mat m = cv::Mat::zeros(500,500,CV_8UC1);
-//        std::stringstream out_file_name;
-//        out_file_name << "/tmp/final/match" << output_id++ << "_" << p1<< "_" << e1 << "_" <<p2 << "_" <<e2 << ".png";
-//        std::vector<std::vector<cv::Point> > contours;
-//        contours.push_back(pieces[p1].edges[e1].get_translated_contour(200, 0));
-//        contours.push_back(pieces[p2].edges[e2].get_translated_contour_reverse(200, 0));
-//        cv::drawContours(m, contours, -1, cv::Scalar(255));
-//        std::cout << out_file_name.str() << std::endl;
-//        cv::imwrite(out_file_name.str(), m);
+        cv::Mat m = cv::Mat::zeros(500,500,CV_8UC1);
+        std::stringstream out_file_name;
+        out_file_name << "/tmp/final/match" << output_id++ << "_" << p1<< "_" << e1 << "_" <<p2 << "_" <<e2 << ".png";
+        std::vector<std::vector<cv::Point> > contours;
+        contours.push_back(pieces[p1].edges[e1].get_translated_contour(200, 0));
+        contours.push_back(pieces[p2].edges[e2].get_translated_contour_reverse(200, 0));
+        cv::drawContours(m, contours, -1, cv::Scalar(255));
+        std::cout << out_file_name.str() << std::endl;
+        cv::imwrite(out_file_name.str(), m);
         
-//        std::cout << "Attempting to merge: " << p1 << " with: " << p2 << " using edges:" << e1 << ", " << e2 << " c:" << i->score <<  std::endl;
-        p.join_sets(p1, p2, e1, e2);
+        std::cout << "Attempting to merge: " << p1 << " with: " << p2 << " using edges:" << e1 << ", " << e2 << " c:" << i->score;
+        std::cout <<  " "<< p.join_sets(p1, p2, e1, e2)  << std::endl;
         i++;
     }
     
@@ -179,7 +219,7 @@ void puzzle::solve(){
 void puzzle::save_image(std::string filepath){
     if(!solved) solve();
     
-
+    std::cout << solution << std::endl;
     //Use get affine to map points...
     int out_image_size = 2150;
     cv::Mat final_out_image(out_image_size,out_image_size,CV_8UC3, cv::Scalar(200,50,3));
@@ -188,13 +228,18 @@ void puzzle::save_image(std::string filepath){
     cv::Point2f ** points = new cv::Point2f*[solution.size[0]+1];
     for(int i = 0; i < solution.size[0]+1; ++i)
         points[i] = new cv::Point2f[solution.size[1]+1];
-    
+    bool failed=false;
     
     std::cout << "Saving image..." << std::endl;
     for(int i=0; i<solution.size[0];i++){
         for(int j=0; j<solution.size[1]; j++){
             int piece_number = solution(i,j);
-    
+            std::cout << solution(i,j) << ",";
+
+            if(piece_number ==-1){
+                failed = true;
+                break;
+            }
             float x_dist =(float) cv::norm(pieces[piece_number].get_corner(0)-pieces[piece_number].get_corner(3));
             float y_dist =(float) cv::norm(pieces[piece_number].get_corner(0)-pieces[piece_number].get_corner(1));
             std::vector<cv::Point2f> src;
@@ -235,10 +280,13 @@ void puzzle::save_image(std::string filepath){
             cv::warpAffine(pieces[piece_number].bw, layer_mask, a_trans_mat, cv::Size2i(layer_size,layer_size));
             
             layer.copyTo(final_out_image(cv::Rect(0,0,layer_size,layer_size)), layer_mask);
-            std::cout << solution(i,j) << ",";
             
         }
         std::cout << std::endl;
+        if(failed){
+            std::cout << "Failed, only partial image generated" << std::endl;
+            break;
+        }
     }
     
 

@@ -33,11 +33,12 @@ private:
     void find_corners();
     void extract_edges();
     void classify();
+    int piece_size;
 public:
     cv::Mat full_color;
     cv::Mat bw;
 
-    piece(cv::Mat color,cv::Mat bw);
+    piece(cv::Mat color,cv::Mat bw, int piece_size);
     edge edges[4];
     pieceType get_type();
     cv::Point2f get_corner(int id);

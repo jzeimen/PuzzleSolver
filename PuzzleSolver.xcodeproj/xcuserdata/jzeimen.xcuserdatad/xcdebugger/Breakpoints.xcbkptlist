@@ -8,11 +8,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "PuzzleSolver/piece.cpp"
-         timestampString = "387734561.525067"
+         timestampString = "387992705.372381"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "166"
-         endingLineNumber = "166"
+         startingLineNumber = "174"
+         endingLineNumber = "174"
          landmarkName = "piece::extract_edges()"
          landmarkType = "5">
       </FileBreakpoint>
@@ -21,12 +21,12 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "PuzzleSolver/piece.cpp"
-         timestampString = "387734561.525067"
+         timestampString = "387992705.372381"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "46"
-         endingLineNumber = "46"
-         landmarkName = "piece::piece(cv::Mat color, cv::Mat black_and_white)"
+         startingLineNumber = "47"
+         endingLineNumber = "47"
+         landmarkName = "piece::piece(cv::Mat color, cv::Mat black_and_white, int estimated_piece_size)"
          landmarkType = "5">
       </FileBreakpoint>
       <FileBreakpoint
@@ -34,11 +34,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "PuzzleSolver/edge.cpp"
-         timestampString = "387734561.525067"
+         timestampString = "388010705.882525"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "130"
-         endingLineNumber = "130"
+         startingLineNumber = "121"
+         endingLineNumber = "121"
          landmarkName = "edge::normalize(std::vector&lt;T&gt; cont)"
          landmarkType = "5">
       </FileBreakpoint>
@@ -60,11 +60,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "PuzzleSolver/PuzzleDisjointSet.cpp"
-         timestampString = "387753893.461263"
+         timestampString = "388002291.644154"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "71"
-         endingLineNumber = "71"
+         startingLineNumber = "75"
+         endingLineNumber = "75"
          landmarkName = "PuzzleDisjointSet::join_sets(int a, int b, int how_a, int how_b)"
          landmarkType = "5">
       </FileBreakpoint>
@@ -73,11 +73,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "PuzzleSolver/PuzzleDisjointSet.cpp"
-         timestampString = "387753893.461263"
+         timestampString = "388002291.644154"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "66"
-         endingLineNumber = "66"
+         startingLineNumber = "70"
+         endingLineNumber = "70"
          landmarkName = "PuzzleDisjointSet::join_sets(int a, int b, int how_a, int how_b)"
          landmarkType = "5">
       </FileBreakpoint>
@@ -99,11 +99,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "PuzzleSolver/PuzzleDisjointSet.cpp"
-         timestampString = "387753893.461263"
+         timestampString = "388002291.644154"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "81"
-         endingLineNumber = "81"
+         startingLineNumber = "85"
+         endingLineNumber = "85"
          landmarkName = "PuzzleDisjointSet::join_sets(int a, int b, int how_a, int how_b)"
          landmarkType = "5">
       </FileBreakpoint>
@@ -112,11 +112,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "PuzzleSolver/piece.cpp"
-         timestampString = "387734561.525067"
+         timestampString = "387992705.372381"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "218"
-         endingLineNumber = "218"
+         startingLineNumber = "234"
+         endingLineNumber = "234"
          landmarkName = "piece::rotate(int times)"
          landmarkType = "5">
       </FileBreakpoint>
@@ -125,11 +125,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "PuzzleSolver/puzzle.cpp"
-         timestampString = "387754261.96164"
+         timestampString = "387993490.414322"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "194"
-         endingLineNumber = "194"
+         startingLineNumber = "234"
+         endingLineNumber = "234"
          landmarkName = "puzzle::save_image(std::string filepath)"
          landmarkType = "5">
       </FileBreakpoint>
@@ -138,12 +138,64 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "PuzzleSolver/puzzle.cpp"
-         timestampString = "387754261.96164"
+         timestampString = "387993490.414322"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "212"
-         endingLineNumber = "212"
+         startingLineNumber = "257"
+         endingLineNumber = "257"
          landmarkName = "puzzle::save_image(std::string filepath)"
+         landmarkType = "5">
+      </FileBreakpoint>
+      <FileBreakpoint
+         shouldBeEnabled = "No"
+         ignoreCount = "0"
+         continueAfterRunningActions = "No"
+         filePath = "PuzzleSolver/puzzle.cpp"
+         timestampString = "387993490.414322"
+         startingColumnNumber = "9223372036854775807"
+         endingColumnNumber = "9223372036854775807"
+         startingLineNumber = "100"
+         endingLineNumber = "100"
+         landmarkName = "puzzle::extract_pieces(std::string path)"
+         landmarkType = "5">
+      </FileBreakpoint>
+      <FileBreakpoint
+         shouldBeEnabled = "No"
+         ignoreCount = "0"
+         continueAfterRunningActions = "No"
+         filePath = "PuzzleSolver/puzzle.cpp"
+         timestampString = "387993490.414322"
+         startingColumnNumber = "9223372036854775807"
+         endingColumnNumber = "9223372036854775807"
+         startingLineNumber = "112"
+         endingLineNumber = "112"
+         landmarkName = "puzzle::extract_pieces(std::string path)"
+         landmarkType = "5">
+      </FileBreakpoint>
+      <FileBreakpoint
+         shouldBeEnabled = "No"
+         ignoreCount = "0"
+         continueAfterRunningActions = "No"
+         filePath = "PuzzleSolver/puzzle.cpp"
+         timestampString = "387993490.414322"
+         startingColumnNumber = "9223372036854775807"
+         endingColumnNumber = "9223372036854775807"
+         startingLineNumber = "269"
+         endingLineNumber = "269"
+         landmarkName = "puzzle::save_image(std::string filepath)"
+         landmarkType = "5">
+      </FileBreakpoint>
+      <FileBreakpoint
+         shouldBeEnabled = "No"
+         ignoreCount = "0"
+         continueAfterRunningActions = "No"
+         filePath = "PuzzleSolver/PuzzleDisjointSet.cpp"
+         timestampString = "388002583.636973"
+         startingColumnNumber = "9223372036854775807"
+         endingColumnNumber = "9223372036854775807"
+         startingLineNumber = "55"
+         endingLineNumber = "55"
+         landmarkName = "PuzzleDisjointSet::join_sets(int a, int b, int how_a, int how_b)"
          landmarkType = "5">
       </FileBreakpoint>
    </FileBreakpoints>

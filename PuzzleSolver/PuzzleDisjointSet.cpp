@@ -35,7 +35,8 @@ bool PuzzleDisjointSet::join_sets(int a, int b, int how_a, int how_b){
     
 
 
-    
+    std::cout << std::endl << sets[rep_a].rotations << std::endl << sets[rep_b].rotations << std::endl;
+
     //We need A to have its adjoining edge to be to the right, position 2
     // meaning if its rotation was 0 it would need to be rotated by 2
     cv::Point loc_of_a = find_location(sets[rep_a].locations, a);
@@ -47,10 +48,13 @@ bool PuzzleDisjointSet::join_sets(int a, int b, int how_a, int how_b){
     //if its position was 0, 
     cv::Point loc_of_b = find_location(sets[rep_b].locations, b);
     int rot_b = sets[rep_b].rotations(loc_of_b);
-    int to_rot_b = (4-rot_b-how_b)%4; 
+    int to_rot_b = (8-rot_b-how_b)%4;
     rotate_ccw(rep_b, to_rot_b);
     
+    std::cout << std::endl << sets[rep_a].locations << std::endl << sets[rep_b].locations << std::endl;
+    std::cout << std::endl << sets[rep_a].rotations << std::endl << sets[rep_b].rotations << std::endl;
 
+    
     //figure out the size of the new Mats
     loc_of_a = find_location(sets[rep_a].locations, a);
     cv::Mat::MSize size_of_a = sets[rep_a].locations.size;

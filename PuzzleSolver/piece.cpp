@@ -10,6 +10,7 @@
 #include <cassert>
 #include <algorithm>
 #include "edge.h"
+#include "utils.h"
 
 int number = 0;
 
@@ -43,10 +44,11 @@ double distance(cv::Point a, cv::Point b){
 }
 
 
-piece::piece(cv::Mat color, cv::Mat black_and_white){
+piece::piece(cv::Mat color, cv::Mat black_and_white, int estimated_piece_size){
 //    edges = std::vector<edge>();
     full_color = color;
     bw = black_and_white;
+    piece_size = estimated_piece_size;
     process();
 }
 
@@ -67,15 +69,15 @@ void piece::find_corners(){
     
     
     //How close can 2 corners be?
-    double minDistance = 200;
+    double minDistance = piece_size;
     //How big of an area to look for the corner in.
     int blockSize = 15;
-    bool useHarrisDetector = false;
+    bool useHarrisDetector = true;
     double k = 0.04;
     
     double min =0;
     double max =1;
-    int max_iterations = 10;
+    int max_iterations = 100;
     bool found_all_corners = false;
     
     //Binary search, altering quality until exactly 4 corners are found.
@@ -106,28 +108,31 @@ void piece::find_corners(){
     }
     
     
-    if(found_all_corners){
-    } else {
-        std::cerr << "Failed to find correct number of corners" << std::endl;
-        exit(2);
-    }
     
     
     //Find the sub-pixel locations of the corners.
-    cv::Size winSize = cv::Size( 15, 15 );
+    cv::Size winSize = cv::Size( blockSize, blockSize );
     cv::Size zeroZone = cv::Size( -1, -1 );
     cv::TermCriteria criteria = cv::TermCriteria( CV_TERMCRIT_EPS + CV_TERMCRIT_ITER, 40, 0.001 );
     
     /// Calculate the refined corner locations
     cv::cornerSubPix( bw, corners, winSize, zeroZone, criteria );
     
-    ////More debug stuff, this will mark the corners with a white circle and save the image
+
+    //More debug stuff, this will mark the corners with a white circle and save the image
     //    int r = 4;
-    //    for( int i = 0; i < corners.size(); i++ )
-    //    { circle( full_color, corners[i], r, cv::Scalar(255,255,255), -1, 8, 0 ); }
-    //    std::stringstream out_file_name;
-    //    out_file_name << "/tmp/final/test"<<number++<<".png";
-    //    cv::imwrite(out_file_name.str(), full_color);
+    for( int i = 0; i < corners.size(); i++ )
+    { circle( full_color, corners[i],(int) corners.size(), cv::Scalar(255,255,255), -1, 8, 0 ); }
+    std::stringstream out_file_name;
+    out_file_name << "/tmp/final/test"<<number++<<".png";
+    cv::imwrite(out_file_name.str(), full_color);
+
+    
+    if(found_all_corners){
+    } else {
+        std::cerr << "Failed to find correct number of corners " << corners.size()<< std::endl;
+        exit(2);
+    }
     
 }
 
@@ -146,6 +151,7 @@ void piece::extract_edges(){
         exit(3);
     }
     std::vector<cv::Point> contour = contours[0];
+    contour = remove_duplicates(contour);
 
     //out of all of the found corners, find the closest points in the contour,
     //these will become the endpoints of the edges
@@ -161,10 +167,16 @@ void piece::extract_edges(){
         }
         corners[i] = closest_point;
     }
-    
+
+
+
     //We need the begining of the vector to correspond to the begining of an edge.
     std::rotate(contour.begin(),find_first_in(contour.begin(), contour.end(), corners),contour.end());
     
+    assert(corners[0]!=corners[1] && corners[0]!=corners[2] && corners[0]!=corners[3] && corners[1]!=corners[2] &&
+           corners[1]!=corners[3] && corners[2]!=corners[3]);
+
+
     
     std::vector<std::vector<cv::Point>::iterator> sections;
     sections = find_all_in(contour.begin(), contour.end(), corners);
@@ -174,6 +186,10 @@ void piece::extract_edges(){
         corners[i]=*sections[i];
     }
 
+    
+    assert(corners[1]!=corners[0] && corners[0]!=corners[2] && corners[0]!=corners[3] && corners[1]!=corners[2] &&
+           corners[1]!=corners[3] && corners[2]!=corners[3]);
+    
     edges[0] = edge(std::vector<cv::Point>(sections[0],sections[1]));
     edges[1] = edge(std::vector<cv::Point>(sections[1],sections[2]));
     edges[2] = edge(std::vector<cv::Point>(sections[2],sections[3]));
