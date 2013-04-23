@@ -27,10 +27,10 @@
 
 
 
-puzzle::puzzle(std::string folderpath, int estimated_piece_size, int thresh){
+puzzle::puzzle(std::string folderpath, int estimated_piece_size, int thresh, bool filter ){
     threshold = thresh;
     piece_size = estimated_piece_size;
-    pieces = extract_pieces(folderpath);
+    pieces = extract_pieces(folderpath, filter);
     solved = false;
     print_edges();
 }
@@ -59,18 +59,25 @@ void puzzle::print_edges(){
     }
 }
 
-std::vector<piece> puzzle::extract_pieces(std::string path){
+std::vector<piece> puzzle::extract_pieces(std::string path, bool needs_filter){
     std::vector<piece> pieces;
     imlist color_images = getImages(path);
     
     //Threshold the image, anything of intensity greater than 45 becomes white (255)
     //anything below becomes 0
-    imlist bw = color_to_bw(color_images,threshold);
+//    imlist blured_images = blur(color_images, 7, 5);
+
+    imlist bw;
+    if(needs_filter){
+        imlist blured_images = median_blur(color_images, 5);
+        bw = color_to_bw(blured_images,threshold);
+    } else{
+        bw= color_to_bw(color_images, threshold);
+        filter(bw,2);
+    }
+
     cv::imwrite("/tmp/final/thresh.png", bw[0]);
-    std::cout << "Converted " << bw.size() << " to black and white" << std::endl;
-    
-    //Filter the noise out of the image
-//    filter(bw,4);
+
     
     //For each input image
     for(int i = 0; i<color_images.size(); i++){
@@ -90,7 +97,7 @@ std::vector<piece> puzzle::extract_pieces(std::string path){
         //TODO: (In anticipation of the other TODO's Re-create the b/w image
         //    based off of the contour to eliminate noise in the layer mask
         for(int j = 0; j<contours.size(); j++){
-            int bordersize = 10;
+            int bordersize = 15;
             cv::Rect r =  cv::boundingRect(contours[j]);
             if(r.width < piece_size || r.height < piece_size) continue;
 
@@ -131,7 +138,6 @@ void puzzle::fill_costs(){
     int no_edges = (int) pieces.size()*4;
     
     //TODO: use openmp to speed up this loop w/o blocking the commented lines below
-    //don't speed it up as much as it probably should...
 //    omp_set_num_threads(4);
 //#pragma omp parallel for schedule(dynamic)
     for(int i =0; i<no_edges; i++){
@@ -167,27 +173,26 @@ void puzzle::solve(){
 //        filename << "/tmp/final/p" << i << ".png";
 //        cv::imwrite(filename.str(), pieces[i].full_color);
 //    }
-    int output_id=0;
     
+    int output_id=0;
     while(!p.in_one_set() && i!=matches.end() ){
         int p1 = i->edge1/4;
         int e1 = i->edge1%4;
         int p2 = i->edge2/4;
         int e2 = i->edge2%4;
         
-////Uncomment the following lines to spit out pictures of the matched edges...
-        cv::Mat m = cv::Mat::zeros(500,500,CV_8UC1);
-        std::stringstream out_file_name;
-        out_file_name << "/tmp/final/match" << output_id++ << "_" << p1<< "_" << e1 << "_" <<p2 << "_" <<e2 << ".png";
-        std::vector<std::vector<cv::Point> > contours;
-        contours.push_back(pieces[p1].edges[e1].get_translated_contour(200, 0));
-        contours.push_back(pieces[p2].edges[e2].get_translated_contour_reverse(200, 0));
-        cv::drawContours(m, contours, -1, cv::Scalar(255));
-        std::cout << out_file_name.str() << std::endl;
-        cv::imwrite(out_file_name.str(), m);
-        
-        std::cout << "Attempting to merge: " << p1 << " with: " << p2 << " using edges:" << e1 << ", " << e2 << " c:" << i->score;
-        std::cout <<  " "<< p.join_sets(p1, p2, e1, e2)  << std::endl;
+//Uncomment the following lines to spit out pictures of the matched edges...
+//        cv::Mat m = cv::Mat::zeros(500,500,CV_8UC1);
+//        std::stringstream out_file_name;
+//        out_file_name << "/tmp/final/match" << output_id++ << "_" << p1<< "_" << e1 << "_" <<p2 << "_" <<e2 << ".png";
+//        std::vector<std::vector<cv::Point> > contours;
+//        contours.push_back(pieces[p1].edges[e1].get_translated_contour(200, 0));
+//        contours.push_back(pieces[p2].edges[e2].get_translated_contour_reverse(200, 0));
+//        cv::drawContours(m, contours, -1, cv::Scalar(255));
+//        std::cout << out_file_name.str() << std::endl;
+//        cv::imwrite(out_file_name.str(), m);
+        std::cout << "Attempting to merge: " << p1 << " with: " << p2 << " using edges:" << e1 << ", " << e2 << " c:" << i->score << " count: "  << output_id++ <<std::endl;
+        p.join_sets(p1, p2, e1, e2);
         i++;
     }
     
@@ -221,7 +226,7 @@ void puzzle::save_image(std::string filepath){
     
     std::cout << solution << std::endl;
     //Use get affine to map points...
-    int out_image_size = 2150;
+    int out_image_size = 6000;
     cv::Mat final_out_image(out_image_size,out_image_size,CV_8UC3, cv::Scalar(200,50,3));
     int border = 10;
     

@@ -27,7 +27,7 @@ private:
     int threshold;
     bool solved;
     std::vector<match_score> matches;
-    std::vector<piece> extract_pieces(std::string path);
+    std::vector<piece> extract_pieces(std::string path, bool needs_filter);
     std::vector<piece>  pieces;
     cv::Mat_<int> solution;
     void print_edges();
@@ -36,7 +36,7 @@ private:
     int piece_size;
     std::string edgeType_to_s(edgeType e);
 public:
-    puzzle(std::string path,int estimated_piece_size, int threshold);
+    puzzle(std::string path,int estimated_piece_size, int threshold, bool filter = true);
     void solve();
     void save_image(std::string filepath);
 };

@@ -23,6 +23,7 @@ imlist getImages(std::string path){
     {
         while ((ep = readdir(dp))){
             cv::Mat image = cv::imread(path+ep->d_name);
+            std::cout << path+ep->d_name << std::endl;
             if(image.data!=NULL) v.push_back(image);
         }
         closedir(dp);
@@ -59,7 +60,41 @@ void filter(imlist to_filter, int size){
     }
 }
 
+//Performs a open then a close operation in order to remove small anomolies.
+imlist blur(imlist to_filter, int size, double sigma){
+    imlist ret;
+    for(imlist::iterator i = to_filter.begin(); i != to_filter.end(); i++){
+        cv::Mat m;
+        cv::GaussianBlur(*i, m, cv::Size(size,size), sigma);
+        ret.push_back(m);
+    }
+    return ret;
+}
 
+
+//Performs a open then a close operation in order to remove small anomolies.
+imlist median_blur(imlist to_filter, int k){
+    imlist ret;
+    for(imlist::iterator i = to_filter.begin(); i != to_filter.end(); i++){
+        cv::Mat m;
+        cv::medianBlur(*i, m, k);
+        ret.push_back(m);
+    }
+    return ret;
+}
+
+imlist bilateral_blur(imlist to_blur){
+    imlist ret;
+    for(imlist::iterator i = to_blur.begin(); i != to_blur.end(); i++){
+        cv::Mat m;
+        cv::bilateralFilter(*i, m, 5, 152, 5);
+
+        cv::imwrite("/tmp/final/bilat.png", m);
+        cv::imwrite("/tmp/final/before_bilat.png", *i);
+        ret.push_back(m);
+    }
+    return ret;
+}
 std::vector<cv::Point> remove_duplicates(std::vector<cv::Point> vec){
     bool dupes_found = true;
     while(dupes_found){

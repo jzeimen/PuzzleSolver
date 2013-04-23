@@ -71,7 +71,7 @@ void piece::find_corners(){
     //How close can 2 corners be?
     double minDistance = piece_size;
     //How big of an area to look for the corner in.
-    int blockSize = 15;
+    int blockSize = 25;
     bool useHarrisDetector = true;
     double k = 0.04;
     

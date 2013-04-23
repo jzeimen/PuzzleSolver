@@ -28,6 +28,10 @@ void filter(imlist to_filter, int size);
 imlist color_to_bw(imlist color, int threshold);
 void filter(imlist to_filter, int size);
 imlist getImages(std::string path);
+imlist blur(imlist to_blur, int size, double sigma);
+imlist median_blur(imlist to_blur, int size);
+imlist bilateral_blur(imlist to_blur);
+
 template<class T> std::vector<cv::Point> translate_contour(std::vector<T> in , int offset_x, int offset_y);
 std::vector<cv::Point> remove_duplicates(std::vector<cv::Point> vec);
 //Return a contour that is translated
