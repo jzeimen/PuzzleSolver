@@ -23,7 +23,7 @@ imlist getImages(std::string path){
     {
         while ((ep = readdir(dp))){
             cv::Mat image = cv::imread(path+ep->d_name);
-            std::cout << path+ep->d_name << std::endl;
+//            std::cout << path+ep->d_name << std::endl;
             if(image.data!=NULL) v.push_back(image);
         }
         closedir(dp);

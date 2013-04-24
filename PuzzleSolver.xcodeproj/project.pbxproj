@@ -12,7 +12,7 @@
 		B5915DD0170E39F600AD2C90 /* libopencv_core.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B5915D97170E39F500AD2C90 /* libopencv_core.dylib */; };
 		B5AD446F171A1AA500B6497F /* libopencv_video.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B5AD446D171A1AA500B6497F /* libopencv_video.dylib */; };
 		B5AD4474171A209A00B6497F /* libopencv_highgui.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B5AD4473171A209A00B6497F /* libopencv_highgui.dylib */; };
-		B5AD4476171A214900B6497F /* libopencv_imgproc.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B5AD4475171A214900B6497F /* libopencv_imgproc.dylib */; };
+		B5AD4476171A214900B6497F /* libopencv_imgproc.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B5AD4475171A214900B6497F /* libopencv_imgproc.dylib */; settings = {ATTRIBUTES = (Required, ); }; };
 		B5F5BF5F170F315700D4776D /* edge.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B5F5BF5D170F315700D4776D /* edge.cpp */; };
 		B5F5BF62170F316000D4776D /* piece.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B5F5BF60170F316000D4776D /* piece.cpp */; };
 		B5F5BF65170F316A00D4776D /* puzzle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B5F5BF63170F316A00D4776D /* puzzle.cpp */; };
@@ -238,7 +238,7 @@
 		B51935AF170E016100FF1235 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ENABLE_OPENMP_SUPPORT = NO;
+				ENABLE_OPENMP_SUPPORT = YES;
 				GCC_ENABLE_FLOATING_POINT_LIBRARY_CALLS = NO;
 				GCC_ENABLE_SSE3_EXTENSIONS = YES;
 				GCC_ENABLE_SSE41_EXTENSIONS = YES;
@@ -259,12 +259,14 @@
 				ICC_GUIDE_TO_FILE = YES;
 				ICC_IPP = None;
 				ICC_LANG_ANSI = c89;
+				ICC_LANG_OPENMP = parallel;
 				ICC_LOGO = NO;
 				ICC_MKL = None;
 				ICC_OPTLEVEL = none;
 				ICC_OPT_PARALLEL = NO;
 				ICC_OPT_REQUIRE_ARCH_IA32 = AVX;
 				ICC_OPT_USE_ARCH_IA32 = AVX;
+				ICC_RT_LIBRARY = static;
 				ICC_USE_OPTIMIZED_HEADERS = NO;
 				LINK_WITH_STANDARD_LIBRARIES = YES;
 				LLVM_LTO = NO;
@@ -278,7 +280,7 @@
 		B51935B0170E016100FF1235 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ENABLE_OPENMP_SUPPORT = NO;
+				ENABLE_OPENMP_SUPPORT = YES;
 				GCC_ENABLE_FLOATING_POINT_LIBRARY_CALLS = NO;
 				GCC_ENABLE_SSE3_EXTENSIONS = YES;
 				GCC_ENABLE_SSE41_EXTENSIONS = YES;
@@ -300,12 +302,14 @@
 				ICC_GUIDE_TO_FILE = YES;
 				ICC_IPP = None;
 				ICC_LANG_ANSI = c89;
+				ICC_LANG_OPENMP = parallel;
 				ICC_LOGO = NO;
 				ICC_MKL = None;
 				ICC_OPTLEVEL = speed;
 				ICC_OPT_PARALLEL = NO;
 				ICC_OPT_REQUIRE_ARCH_IA32 = AVX;
 				ICC_OPT_USE_ARCH_IA32 = AVX;
+				ICC_RT_LIBRARY = static;
 				ICC_USE_OPTIMIZED_HEADERS = NO;
 				LINK_WITH_STANDARD_LIBRARIES = YES;
 				LLVM_LTO = NO;

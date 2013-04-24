@@ -30,9 +30,10 @@
 puzzle::puzzle(std::string folderpath, int estimated_piece_size, int thresh, bool filter ){
     threshold = thresh;
     piece_size = estimated_piece_size;
+    std::cout << "extracting pieces" << std::endl;
     pieces = extract_pieces(folderpath, filter);
     solved = false;
-    print_edges();
+//    print_edges();
 }
 
 
@@ -76,7 +77,7 @@ std::vector<piece> puzzle::extract_pieces(std::string path, bool needs_filter){
         filter(bw,2);
     }
 
-    cv::imwrite("/tmp/final/thresh.png", bw[0]);
+//    cv::imwrite("/tmp/final/thresh.png", bw[0]);
 
     
     //For each input image
@@ -91,9 +92,6 @@ std::vector<piece> puzzle::extract_pieces(std::string path, bool needs_filter){
 
         
         //For each contour in that image
-        //TODO: Reject contours of very small size to be more resilient to noise
-        //TODO: Offset the contour w.r.t. the rectangle and just pass that into
-        //    the piece to avoid finding it twice.
         //TODO: (In anticipation of the other TODO's Re-create the b/w image
         //    based off of the contour to eliminate noise in the layer mask
         for(int j = 0; j<contours.size(); j++){
@@ -109,13 +107,13 @@ std::vector<piece> puzzle::extract_pieces(std::string path, bool needs_filter){
             cv::drawContours(new_bw, contours_to_draw, -1, cv::Scalar(255), CV_FILLED);
             //        std::cout << out_file_name.str() << std::endl;
             //        cv::imwrite(out_file_name.str(), m);
-            cv::imwrite("/tmp/final/new_bw.png", new_bw);
+//            cv::imwrite("/tmp/final/new_bw.png", new_bw);
 
             r.width += bordersize*2;
             r.height += bordersize*2;
             r.x -= bordersize;
             r.y -= bordersize;
-            cv::imwrite("/tmp/final/bw.png", bw[i](r));            
+//            cv::imwrite("/tmp/final/bw.png", bw[i](r));            
             cv::Mat mini_color = color_images[i](r);
             cv::Mat mini_bw = new_bw;//bw[i](r);
             //Create a copy so it can't conflict.
@@ -281,8 +279,8 @@ void puzzle::save_image(std::string filepath){
             
             int layer_size = out_image_size;
             
-            cv::warpAffine(pieces[piece_number].full_color, layer, a_trans_mat, cv::Size2i(layer_size,layer_size));
-            cv::warpAffine(pieces[piece_number].bw, layer_mask, a_trans_mat, cv::Size2i(layer_size,layer_size));
+            cv::warpAffine(pieces[piece_number].full_color, layer, a_trans_mat, cv::Size2i(layer_size,layer_size),cv::INTER_LINEAR,cv::BORDER_TRANSPARENT);
+            cv::warpAffine(pieces[piece_number].bw, layer_mask, a_trans_mat, cv::Size2i(layer_size,layer_size),cv::INTER_NEAREST,cv::BORDER_TRANSPARENT);
             
             layer.copyTo(final_out_image(cv::Rect(0,0,layer_size,layer_size)), layer_mask);
             

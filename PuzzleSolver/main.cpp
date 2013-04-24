@@ -27,7 +27,7 @@ int main(int argc, const char * argv[])
     //22 for color
     
     //Toy Story Color & breaks with median filter, needs filter()
-    puzzle puzzle(input+"Toy Story/", 200, 22, false);
+//    puzzle puzzle(input+"Toy Story/", 200, 22, false);
 
     
     //Toy Story back works w/ median filter
@@ -43,7 +43,7 @@ int main(int argc, const char * argv[])
 //    puzzle puzzle(input+"horses/", 380, 50);
 
     //Horses back numbered
-//    puzzle puzzle(input+"horses numbered/", 380, 50);
+    puzzle puzzle(input+"horses numbered/", 380, 50);
     
 
 
