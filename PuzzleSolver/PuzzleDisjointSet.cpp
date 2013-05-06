@@ -51,9 +51,6 @@ bool PuzzleDisjointSet::join_sets(int a, int b, int how_a, int how_b){
     int to_rot_b = (8-rot_b-how_b)%4;
     rotate_ccw(rep_b, to_rot_b);
     
-//    std::cout << std::endl << sets[rep_a].locations << std::endl << sets[rep_b].locations << std::endl;
-//    std::cout << std::endl << sets[rep_a].rotations << std::endl << sets[rep_b].rotations << std::endl;
-
     
     //figure out the size of the new Mats
     loc_of_a = find_location(sets[rep_a].locations, a);
@@ -89,7 +86,7 @@ bool PuzzleDisjointSet::join_sets(int a, int b, int how_a, int how_b){
     //check for overlap while combining...
     for(int i = 0; i<new_a_locs.size[0]; i++){
         for(int j=0; j<new_a_locs.size[1]; j++){
-            //IF both have a real value for a piece, it becomes impossible, reject
+            //If both have a real value for a piece, it becomes impossible, reject
             if(new_a_locs(i,j) != -1 && new_b_locs(i,j)!= -1){
                 std::cout << "Failed to merge because of overlap" << std::endl;
                 return false;

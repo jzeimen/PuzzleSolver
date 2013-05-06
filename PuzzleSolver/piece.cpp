@@ -121,11 +121,11 @@ void piece::find_corners(){
 
     //More debug stuff, this will mark the corners with a white circle and save the image
     //    int r = 4;
-    for( int i = 0; i < corners.size(); i++ )
-    { circle( full_color, corners[i],(int) corners.size(), cv::Scalar(255,255,255), -1, 8, 0 ); }
-    std::stringstream out_file_name;
-    out_file_name << "/tmp/final/test"<<number++<<".png";
-    cv::imwrite(out_file_name.str(), full_color);
+//    for( int i = 0; i < corners.size(); i++ )
+//    { circle( full_color, corners[i],(int) corners.size(), cv::Scalar(255,255,255), -1, 8, 0 ); }
+//    std::stringstream out_file_name;
+//    out_file_name << "/tmp/final/test"<<number++<<".png";
+//    cv::imwrite(out_file_name.str(), full_color);
 
     
     if(found_all_corners){
@@ -151,6 +151,7 @@ void piece::extract_edges(){
         exit(3);
     }
     std::vector<cv::Point> contour = contours[0];
+
     contour = remove_duplicates(contour);
 
     //out of all of the found corners, find the closest points in the contour,

@@ -10,7 +10,7 @@
 #include <opencv/cv.h>
 #include "PuzzleDisjointSet.h"
 #include <sstream>
-//#include "omp.h"
+#include "omp.h"
 
 
 /*
@@ -137,17 +137,17 @@ void puzzle::fill_costs(){
     
     //TODO: use openmp to speed up this loop w/o blocking the commented lines below
 //    omp_set_num_threads(4);
-//#pragma omp parallel for schedule(dynamic)
+#pragma omp parallel for schedule(dynamic)
     for(int i =0; i<no_edges; i++){
         for(int j=i; j<no_edges; j++){
             match_score score;
             score.edge1 =(int) i;
             score.edge2 =(int) j;
             score.score = pieces[i/4].edges[i%4].compare2(pieces[j/4].edges[j%4]);
-//#pragma omp critical
-//{
+#pragma omp critical
+{
             matches.push_back(score);
-//}
+}
         }
     }
     std::sort(matches.begin(),matches.end(),match_score::compare);
@@ -189,7 +189,7 @@ void puzzle::solve(){
 //        cv::drawContours(m, contours, -1, cv::Scalar(255));
 //        std::cout << out_file_name.str() << std::endl;
 //        cv::imwrite(out_file_name.str(), m);
-        std::cout << "Attempting to merge: " << p1 << " with: " << p2 << " using edges:" << e1 << ", " << e2 << " c:" << i->score << " count: "  << output_id++ <<std::endl;
+//        std::cout << "Attempting to merge: " << p1 << " with: " << p2 << " using edges:" << e1 << ", " << e2 << " c:" << i->score << " count: "  << output_id++ <<std::endl;
         p.join_sets(p1, p2, e1, e2);
         i++;
     }
@@ -223,6 +223,7 @@ void puzzle::save_image(std::string filepath){
     if(!solved) solve();
     
     std::cout << solution << std::endl;
+    
     //Use get affine to map points...
     int out_image_size = 6000;
     cv::Mat final_out_image(out_image_size,out_image_size,CV_8UC3, cv::Scalar(200,50,3));
@@ -264,11 +265,14 @@ void puzzle::save_image(std::string filepath){
             src.push_back(pieces[piece_number].get_corner(0));
             src.push_back(pieces[piece_number].get_corner(1));
             src.push_back(pieces[piece_number].get_corner(3));
+
+            //true means use affine transform
             cv::Mat a_trans_mat = cv::estimateRigidTransform(src, dst,true);
             cv::Mat_<double> A = a_trans_mat;
             
             //Lower right corner of each piece
             cv::Point2f l_r_c = pieces[piece_number].get_corner(2);
+            
             //Doing my own matrix multiplication
             points[i+1][j+1] = cv::Point2f((float)(A(0,0)*l_r_c.x+A(0,1)*l_r_c.y+A(0,2)),(float)(A(1,0)*l_r_c.x+A(1,1)*l_r_c.y+A(1,2)));
             

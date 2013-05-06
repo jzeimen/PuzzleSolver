@@ -70,7 +70,7 @@ void edge::classify(){
     
     //Find the minimum or maximum value for x in the normalized contour and base
     //the classification on that
-    int minx  = 10000000;
+    int minx  = 100000000;
     int maxx = -100000000;
     for(int i = 0; i<normalized_contour.size(); i++){
         if(minx > normalized_contour[i].x)  minx = normalized_contour[i].x;
@@ -108,7 +108,7 @@ std::vector<cv::Point2f> edge::normalize(std::vector<T> cont){
     b.x =b.x - a.x;
     b.y =b.y - a.y;
     
-    double theta = std::acos(1.0*b.y/(cv::norm(b)));
+    double theta = std::acos(b.y/(cv::norm(b)));
     if(b.x < 0) theta = -theta;
     
     //Theta is the angle every point needs rotated.
