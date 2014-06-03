@@ -20,6 +20,8 @@ I am specifically using the 2.4.4 version of the opencv library. Here is how I h
     make -j8
     sudo make install
 
+#### Mavericks?
+See https://github.com/jzeimen/PuzzleSolver/issues/2
 
 ## Linux (Tested on Ubuntu 12.04)
 
