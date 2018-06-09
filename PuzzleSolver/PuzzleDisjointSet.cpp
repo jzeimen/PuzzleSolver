@@ -8,6 +8,8 @@
 
 #include "PuzzleDisjointSet.h"
 #include <algorithm>
+#include <opencv2/core/core.hpp>
+#include <opencv2/core/mat.hpp>
 
 PuzzleDisjointSet::PuzzleDisjointSet(int number){
     set_count=0;
@@ -54,9 +56,9 @@ bool PuzzleDisjointSet::join_sets(int a, int b, int how_a, int how_b){
     
     //figure out the size of the new Mats
     loc_of_a = find_location(sets[rep_a].locations, a);
-    cv::Mat::MSize size_of_a = sets[rep_a].locations.size;
+    cv::MatSize size_of_a = sets[rep_a].locations.size;
     loc_of_b = find_location(sets[rep_b].locations, b);
-    cv::Mat::MSize size_of_b = sets[rep_b].locations.size;
+    cv::MatSize size_of_b = sets[rep_b].locations.size;
     
     int width = std::max(size_of_a[1], loc_of_a.x - loc_of_b.x +1 +size_of_b[1]) - std::min(0, loc_of_a.x-loc_of_b.x +1);
     int height = std::max(size_of_a[0], loc_of_a.y - loc_of_b.y +size_of_b[0]) - std::min(0, loc_of_a.y-loc_of_b.y);

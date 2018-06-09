@@ -8,7 +8,8 @@
 
 #include "utils.h"
 
-
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
 
 
 //This function takes a directory, and returns a vector of every image opencv could extract from it.

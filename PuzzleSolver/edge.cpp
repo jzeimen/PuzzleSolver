@@ -10,6 +10,10 @@
 #include <vector>
 #include <cmath>
 #include "utils.h"
+
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+
 edge::edge(std::vector<cv::Point> edge){
     //original
     contour = edge;
