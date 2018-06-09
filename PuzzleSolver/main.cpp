@@ -10,13 +10,13 @@
 #include <string.h>
 #include "puzzle.h"
 #include <cassert>
-#include "util.h"
+#include "utils.h"
 #include "PuzzleDisjointSet.h"
 #include <sys/time.h>
 
 //Dont forget final "/" in directory name.
-static const std::string input = "/Users/jzeimen/Documents/school/College/Spring2013/ComputerVision/FinalProject/PuzzleSolver/PuzzleSolver/Scans/";
-static const std::string output = "/tmp/final/finaloutput.png";
+static const std::string input = "/home/jan/Software/puzzlesolver_jzeimen/Scans/";
+static const std::string output = "/home/jan/Software/puzzlesolver_jzeimen/Scans/finaloutput.png";
 
 
 int main(int argc, const char * argv[])

@@ -11,6 +11,8 @@
 #include <algorithm>
 #include "edge.h"
 #include "utils.h"
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
 
 int number = 0;
 

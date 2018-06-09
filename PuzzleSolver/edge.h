@@ -11,7 +11,7 @@
 
 #include <iostream>
 #include <opencv/cv.h>
-
+#include <opencv2/highgui.hpp>
 
 enum edgeType { OUTER_EDGE, TAB, HOLE };
 
