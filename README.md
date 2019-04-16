@@ -25,12 +25,16 @@ be found, then an image of the solved puzzle is shown in a GUI window.
 - [How It Works](#how-puzzlesolver-works)  
 
 
-# Installing OpenCV
+# Installing OpenCV, OpenMP
 
-OpenCV is required to run PuzzleSolver. This version compiles with OpenCV version 2, 3, or 4. Here is how I have done it on 3 different computers...
+OpenCV is required to run PuzzleSolver. This version compiles with OpenCV version 2, 3, or 4.
+
+If available, OpenMP enables faster edge scoring via multi-processing. 
+
+Here is how I have done it on 3 different computers...
 
 ## OSX 
-Tested on High Sierra (10.3.x) and Mojave (10.4.x) with OpenCV 4.0.1
+Tested on High Sierra (10.13.x) and Mojave (10.14.x) with OpenCV 4.0.1
 ```
 ### Install Homebrew if you haven't already. Visit https://brew.sh and install it
 
@@ -49,19 +53,24 @@ Tested on Ubuntu 18.04
 Installs OpenCV 3.2 as of Jan 2019
 
 ```
-sudo apt-get install libopencv-dev
+sudo apt-get install libopencv-dev libomp-dev
 ```
 
 ### Manual install
 
-Installed OpenCV 3.4.4 following the instructions here: https://www.pyimagesearch.com/2018/05/28/ubuntu-18-04-how-to-install-opencv/
+Install OpenCV 3.4.4 by following the instructions here: https://www.pyimagesearch.com/2018/05/28/ubuntu-18-04-how-to-install-opencv/
+
+Install OpenMP via the package manager:
+```
+sudo apt-get install libomp-dev
+```
 
 
 ### On ChromeOS, Linux (Beta)
 
 Installs OpenCV 2.4 as of April 2019
 ```
-sudo apt-get install libopencv-dev
+sudo apt-get install libopencv-dev libomp-dev
 ```
 
 # Compiling PuzzleSolver
@@ -71,7 +80,7 @@ On Linux or Mac run this from the PuzzleSolver/Src directory:
 ./build.sh
 ```
 
-The result will be an executable called PuzzleSolver.  Run it with the `--help` option and the usage information will be written to the console.
+The result will be an executable called PuzzleSolver.  Run it without any arguments or the `--help` option and the usage information will be written to the console.
 
 ## Source-level debugging
 The default compiler optimizations can make it difficult to use source-level debugging.  To disable optimizatons, execute the following command.  PuzzleSolver will run noticably slower afterwards.
@@ -147,9 +156,9 @@ For persistent corner quality issues, use `--adjust-corners` to trigger a popup 
 This window allows the corner locations to be adjusted -- click and drag the red circles until they are each positioned 
 over a corner, then press the 'n' key to dismiss the window and advance to the next problematic piece, if any.  If no edits 
 are necessary, press the 'n' key.  Manual adjustments are persisted in data files in the output directory so that they don't 
-have to be re-adjusted when re-running PuzzleSolver.
+have to be adjusted again when re-running PuzzleSolver.
 
-The rendering scale of this window can be adjusted using the -/+ keys, or you can use the `--scale` option to set it for all popup windows.
+The rendering scale of this window can be changed using the -/+ keys, or you can use the `--scale` option to set it for all popup windows.
 Toggle between the color and black and white version of the piece with the 'c' key. 
 
 | Corners before adjustment | Corners after adjustment |
@@ -247,7 +256,7 @@ This section introduces the internals of PuzzleSolver and its command line optio
   - OpenCV's findContours() method is used to find the piece contours in the black and white image.  Contours with a width or height less than the estimated piece size are assumed to be from image noise and are rejected.  Use `--estimated-piece-size` to override the default value.  This value is also important when detecting the piece corners later on.
   - The piece contours are sorted and numbered in the order they appear in the input image.  By understanding how PuzzleSolver numbers the pieces and by carefully arranging the numbered pieces on the glass when scanning, the piece numbers used in PuzzleSolver can be made to match those written on the peices.  The default numbering order is "left to right, top to bottom" (`lrtb`) within the image, as in the order of written words on a page.  The `--order` option can be used to change the default order value of `lrtb`. Eight different ordering options are available: lrtb, rltb, lrbt, rlbt, tblr, tbrl, btlr, and btrl.  To see what PuzzleSolver is doing here, use the `--verify-contours` option and the numbered contours will be displayed in a popup GUI window.  Press the 't' key when focus is on this window to toggle between the contours and the original color image.  Press the 'n' key to advance to the contours of the next image.
 - For each puzzle piece that is found...
-   - Small color and black and white images representing the piece are extracted from the the input image and associated with the piece data.
+   - Small color and black and white images representing the piece are extracted from the input image and associated with the piece data.
    - The locations of the piece corners are identified via an iterative process that calls OpenCV's goodFeaturesToTrack() function on the piece's black and white image.  Corner cobminations are rejected if the distance between corners is shorter than the value given by `--estimated-piece-size`.  The `blockSize` parameter passed to goodFeaturesToTrack() can be controlled via the `--corners-blocksize` option.
    - A check on the quality of the identified corner locations is performed by comparing the corners found to those of a rectangle.  The result is a 'corners quality' metric for which the value is higher for a piece with corner locations less like those of a rectangle, and lower for a piece where the corner locations are more like the corners of a rectangle.  If the value for a piece exceeds the `--corners-quality` option value, then a warning is reported to the console.  If a large number of warnings is issued, then the estimated piece size is probably set too high and should be lowered.  The `--threshold` and `--corners-blocksize` option values are also important and should be adjusted when trying to reduce or eliminate these warnings. If warnings persist, then the corner locations for these pieces can be viewed and manually adjusted in a popup GUI window by re-running PuzzleSolver with the `--adjust-corners` option.  
    - The piece contour is divided into four edge contours at the corner locations.  A copy of each edge contour is "normalized" -- i.e., translated and rotated so that one end is positioned at the origin and the other end is positioned above it on the y-axis.  This allows for easy automatic classification and comparison of edges within the software.
@@ -261,8 +270,9 @@ This section introduces the internals of PuzzleSolver and its command line optio
    been matched into a single group of pieces.  The solution is attempted in a single pass down the sorted edge-edge match list, and
    not by trying to reduce the overall sum of all matched edge scores. 
  - Guided solution mode is similar except that the the human operator participates in accepting and rejecting possible 
-   matches, and the number of matched sets is intentionally kept to a minimum for the sake of the user's sanity.  In this mode, additional checks
-   are performed prior to suggesting a match where the new piece would fit against more than just the other edge from the edge-edge match score list entry.
+   matches, and the number of matched sets is intentionally kept to a minimum to make it easier for the user to find the 
+   pieces suggested for matching.  In this mode, additional checks are performed prior to suggesting a match where the 
+   new piece would fit against more than just the other edge from the edge-edge match score list entry.
    - Adjacent edge matches are checked for impossible fits, such as TAB to TAB or HOLE to HOLE matches, and rejected as appropriate.  
    - The adjacent edge-edge score values can also result in a rejected match when they exceed certain thresholds.
       - If an adjacent edge match score has a corner-corner distance difference component that exceeds the value configured 
