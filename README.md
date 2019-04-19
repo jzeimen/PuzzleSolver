@@ -5,7 +5,7 @@ This is a program that uses computer vision techniques to solve jigsaw puzzles u
 It can be used to solve puzzles from scratch, or help solve partially completed puzzles. It works best with 
 fully-interlocking puzzles that have pieces of approximately the same size.
 
-PuzzleSolver 2019 is an extension of Joe Zeimen's original work from 2014.   It is a hybrid command-line/GUI application -- input parameters are specified on the command line, status and 
+PuzzleSolver 2019 extends Joe Zeimen's original work from 2013.   It is a hybrid command-line/GUI application -- input parameters are specified on the command line, status and 
 results are written to the console and to various files in the output directory.  There are times when PuzzleSolver 
 will pupup a GUI window -- namely when verifying contours found in the input images, when allowing the user to manually 
 adjust the corner locations of a piece, and in guided solution mode to present suggested piece matches.  If a solution can 
