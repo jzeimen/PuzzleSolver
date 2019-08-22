@@ -35,7 +35,9 @@ imlist utils::getImages(std::string path){
     }
     
     while ((ep = readdir(dp))) {
-        filenames.push_back(path+ep->d_name);
+        if (strcmp(".", ep->d_name) != 0 && strcmp("..", ep->d_name) != 0) {
+            filenames.push_back(path+ep->d_name);
+        }
     }
     closedir(dp);
     
