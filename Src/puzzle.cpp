@@ -84,7 +84,7 @@ std::vector<piece> puzzle::extract_pieces() {
     logger::stream() << "Extracting pieces..." << std::endl;    
     logger::flush();
     
-    //Threshold the image, anything of intensity greater than 45 becomes white (255)
+    //Threshold the image, anything of intensity greater than the threshold becomes white (255)
     //anything below becomes 0
 //    imlist blured_images = blur(color_images, 7, 5);
 
@@ -101,7 +101,7 @@ std::vector<piece> puzzle::extract_pieces() {
     
 
     //For each input image
-    for(uint i = 0; i<color_images.size(); i++){
+    for(uint i = 0; i < color_images.size(); i++){
 
         char image_number_buf[80];
         sprintf(image_number_buf, "%03d", i+1);
@@ -621,16 +621,21 @@ std::string puzzle::guide_match(int p1, int p2, int e1, int e2) {
     double cscore;
     double escore;
     double score = pieces[p1].edges[e1].compare3(pieces[p2].edges[e2], cscore, escore);
-    
-    std::cout << "Does piece " << (p1 + user_params.getInitialPieceId()) 
-            << " fit to " << (p2 + user_params.getInitialPieceId()) 
-            << " (scores: " << cscore << " / " << escore << ")"
-            << " ? " << std::flush;
-    
-    std::string response = guided_match(pieces[p1], pieces[p2], e1, e2, user_params);
-    std::cout << response << std::endl;
 
-    if (response != "yes" &&  response != "no") {
+    std::string response;
+    if (score == DBL_MAX || cscore > user_params.getCscoreLimit() || escore > user_params.getEscoreLimit()) {
+      response = "no";
+    } else {
+      std::cout << "Does piece " << (p1 + user_params.getInitialPieceId()) 
+		<< " fit to " << (p2 + user_params.getInitialPieceId()) 
+		<< " (scores: " << cscore << " / " << escore << ")"
+		<< " ? " << std::flush;
+    
+      response = guided_match(pieces[p1], pieces[p2], e1, e2, user_params);
+      std::cout << response << std::endl;
+    }
+    
+    if (response != "yes" && response != "no") {
         return response;
     }
     guided_matches[id] = response;
